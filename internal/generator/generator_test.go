@@ -2,11 +2,12 @@ package generator_test
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-	"github.com/kukymbr/configen/internal/formatter"
 	"github.com/kukymbr/configen/internal/generator"
+	"github.com/stretchr/testify/suite"
 )
 
 type generatorGenerateTestCase struct {
@@ -14,7 +15,7 @@ type generatorGenerateTestCase struct {
 	GetOptFunc            func() generator.Options
 	GetContextFunc        func() context.Context
 	AssertConstructorFunc func(err error)
-	AssertFunc            func(err error)
+	AssertFunc            func(opt generator.Options, err error)
 }
 
 func TestGenerator(t *testing.T) {
@@ -32,15 +33,28 @@ func (s *GeneratorSuite) TearDownSuite() {}
 func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 	tests := []generatorGenerateTestCase{
 		{
-			Name: "with default options",
+			Name: "generate all",
 			GetOptFunc: func() generator.Options {
-				return generator.Options{}
+				return generator.Options{
+					StructName: "Config",
+					YAML: generator.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath("test1.yaml"),
+					},
+					Env: generator.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath("test1.env"),
+					},
+				}
 			},
 			AssertConstructorFunc: func(err error) {
 				s.Require().NoError(err)
 			},
-			AssertFunc: func(err error) {
+			AssertFunc: func(opt generator.Options, err error) {
 				s.Require().NoError(err)
+
+				s.assertContent(opt.YAML.Path, "config.yaml")
+				s.assertContent(opt.Env.Path, "config.env")
 			},
 		},
 	}
@@ -73,11 +87,10 @@ func (s *GeneratorSuite) TestGenerator_NegativeCases() {
 }
 
 func (s *GeneratorSuite) runGeneratorGenerateTest(test generatorGenerateTestCase) {
-	opt := test.GetOptFunc()
+	s.T().Helper()
 
-	if opt.Formatter == "" {
-		opt.Formatter = formatter.Noop
-	}
+	opt := test.GetOptFunc()
+	opt.SourceDir = "testdata"
 
 	gen, err := generator.New(opt)
 	test.AssertConstructorFunc(err)
@@ -93,6 +106,32 @@ func (s *GeneratorSuite) runGeneratorGenerateTest(test generatorGenerateTestCase
 
 	err = gen.Generate(ctx)
 	if test.AssertFunc != nil {
-		test.AssertFunc(err)
+		test.AssertFunc(opt, err)
 	}
+}
+
+func (s *GeneratorSuite) assertContent(filename string, expectedName string) {
+	s.T().Helper()
+
+	actual, err := os.ReadFile(filename)
+	s.Require().NoError(err)
+
+	expectedPath := filepath.Join("testdata/expected", expectedName)
+
+	expected, err := os.ReadFile(expectedPath)
+	s.Require().NoError(err)
+
+	s.Require().Equal(string(expected), string(actual))
+}
+
+func (s *GeneratorSuite) getTargetPath(name string) string {
+	s.T().Helper()
+
+	path := filepath.Join("testdata/target", name)
+
+	s.T().Cleanup(func() {
+		_ = os.RemoveAll(path)
+	})
+
+	return path
 }

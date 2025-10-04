@@ -6,7 +6,7 @@ import "fmt"
 var (
 	Version  = "unknown"
 	Revision = "unknown"
-	BuiltAt  = "{% now 'utc', '%Y-%m-%d %H:%M:%S' %}"
+	BuiltAt  = "2025-10-04 00:00:00"
 )
 
 func GetVersion() string {

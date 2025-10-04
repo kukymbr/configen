@@ -57,10 +57,4 @@ clean:
 	go clean
 
 generate_example:
-	go build \
-		--ldflags "-X $(VERSION_PACKAGE).BuiltAt=$(shell date -u +%Y%m%d%H%M%S)" \
-		-o bin/configen_example \
-		./cmd/configen
-	# TODO: add example command arguments.
-	./bin/configen
-	rm ./bin/sqlamble_example
+	go run cmd/configen/main.go --source=example --struct=Config --yaml=example/config.yaml --env=example/config.env

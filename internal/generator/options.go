@@ -2,35 +2,37 @@ package generator
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
-	"github.com/kukymbr/configen/internal/formatter"
 	"github.com/kukymbr/configen/internal/utils"
 )
 
 const (
-	DefaultPackageName = "configen"
-	DefaultSourceDir   = "."
-	DefaultTargetDir   = "."
-	DefaultFormatter   = formatter.GoFmt
+	DefaultSourceDir = "."
 )
 
 type Options struct {
-	// PackageName is a target package name of the generated code.
-	// Default is "configen".
-	PackageName string
+	// StructName is a struct name to generate config from.
+	StructName string
+
+	// YAML target config file options
+	YAML OutputOptions
+
+	// Env target config file options
+	Env OutputOptions
 
 	// SourceDir is a directory of the SQL files.
 	// Default is the current directory (most applicable for go:generate).
 	SourceDir string
+}
 
-	// TargetDir is a target go code directory.
-	// Default is the current directory.
-	TargetDir string
+type OutputOptions struct {
+	// Enable is a flag to enable an output.
+	Enable bool
 
-	// Formatter is a name of the formatter for the generated code files.
-	// Available options: gofmt (default), none.
-	Formatter string
+	// Path is a target file path.
+	Path string
 }
 
 func (opt Options) Debug() string {
@@ -38,34 +40,44 @@ func (opt Options) Debug() string {
 }
 
 func prepareOptions(opt *Options) error {
-	opt.PackageName = strings.TrimSpace(opt.PackageName)
+	if opt.StructName == "" {
+		return fmt.Errorf("struct name is required")
+	}
 
-	if opt.PackageName == "" {
-		opt.PackageName = DefaultPackageName
+	if err := utils.ValidateIdentifier(opt.StructName); err != nil {
+		return err
 	}
 
 	if opt.SourceDir == "" {
 		opt.SourceDir = DefaultSourceDir
 	}
 
-	if opt.TargetDir == "" {
-		opt.TargetDir = DefaultTargetDir
+	if opt.YAML.Path == "" {
+		opt.YAML.Path = strings.ToLower(opt.StructName) + ".yaml"
 	}
 
-	if opt.Formatter == "" {
-		opt.Formatter = DefaultFormatter
+	if opt.Env.Path == "" {
+		opt.Env.Path = strings.ToLower(opt.StructName) + ".env"
+	}
+
+	if err := ensureDirs(opt.YAML, opt.Env); err != nil {
+		return err
 	}
 
 	if err := utils.ValidateIsDir(opt.SourceDir); err != nil {
 		return err
 	}
 
-	if err := utils.ValidatePackageName(opt.PackageName); err != nil {
-		return err
-	}
+	return nil
+}
 
-	if err := utils.EnsureDir(opt.TargetDir); err != nil {
-		return err
+func ensureDirs(opts ...OutputOptions) error {
+	for _, opt := range opts {
+		if dir := filepath.Dir(opt.Path); dir != "" {
+			if err := utils.EnsureDir(dir); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

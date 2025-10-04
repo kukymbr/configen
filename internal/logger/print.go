@@ -52,5 +52,5 @@ func Successf(format string, args ...any) {
 		return
 	}
 
-	fmt.Printf("👍 "+format, args...)
+	fmt.Printf("👍 "+format+"\n", args...)
 }

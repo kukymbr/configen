@@ -6,25 +6,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/spf13/cobra"
-
-	"github.com/kukymbr/configen/internal/formatter"
 	"github.com/kukymbr/configen/internal/generator"
 	"github.com/kukymbr/configen/internal/logger"
 	"github.com/kukymbr/configen/internal/version"
+	"github.com/spf13/cobra"
 )
 
-func Run() {
-	if err := run(); err != nil {
-		logger.Errorf("%s", err.Error())
-		os.Exit(1)
-	}
-
-	os.Exit(0)
-}
-
-func run() error {
-	opt := generator.Options{}
+func Run() error {
+	opt := options{}
 	silent := false
 
 	var cmd = &cobra.Command{
@@ -35,7 +24,7 @@ func run() error {
 			ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer cancel()
 
-			gen, err := generator.New(opt)
+			gen, err := generator.New(opt.ToGeneratorOptions())
 			if err != nil {
 				return err
 			}
@@ -54,27 +43,39 @@ func run() error {
 	return cmd.Execute()
 }
 
-func initFlags(cmd *cobra.Command, opt *generator.Options, silent *bool) {
+func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	cmd.PersistentFlags().BoolVarP(silent, "silent", "s", false, "Silent mode")
 
 	cmd.Flags().StringVar(
-		&opt.PackageName,
-		"package",
-		generator.DefaultPackageName,
-		"Target package name of the generated code",
+		&opt.StructName,
+		"struct",
+		"",
+		"Name of the struct to generate config from",
 	)
 
 	cmd.Flags().StringVar(
-		&opt.TargetDir,
-		"target",
-		generator.DefaultTargetDir,
-		"Directory for the generated Go files",
+		&opt.YAMLPath,
+		"yaml",
+		"true",
+		"Path to YAML config file, set 'true' to enable with default path",
 	)
 
 	cmd.Flags().StringVar(
-		&opt.Formatter,
-		"fmt",
-		generator.DefaultFormatter,
-		"Formatter used to format generated go files ("+formatter.GoFmt+"|"+formatter.Noop+")",
+		&opt.EnvPath,
+		"env",
+		"",
+		"Path to dotenv config file, set 'true' to enable with default path",
 	)
+
+	cmd.Flags().StringVar(
+		&opt.SourceDir,
+		"source",
+		generator.DefaultSourceDir,
+		"Directory of the source go files",
+	)
+
+	_ = cmd.MarkFlagRequired("struct")
+	_ = cmd.MarkFlagFilename("yaml")
+	_ = cmd.MarkFlagFilename("env")
+	_ = cmd.MarkFlagDirname("source")
 }
