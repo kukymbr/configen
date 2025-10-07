@@ -18,8 +18,8 @@ func Run() error {
 
 	var cmd = &cobra.Command{
 		Use:   "configen",
-		Short: "Golang code generator",
-		Long:  `Golang code generator`,
+		Short: "Configs generator",
+		Long:  `The go:generate tool to generate YAML and dotenv configuration files from the Golang struct.`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer cancel()

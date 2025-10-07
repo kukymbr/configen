@@ -69,7 +69,7 @@ func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 func (s *GeneratorSuite) TestGenerator_NegativeCases() {
 	tests := []generatorGenerateTestCase{
 		{
-			Name: "when something unexpectedly happened",
+			Name: "required options missing",
 			GetOptFunc: func() generator.Options {
 				return generator.Options{}
 			},

@@ -17,9 +17,9 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Env       string `env:"ENV" envDefault:"development" json:"env" yaml:"env"`
-	Namespace string `env:"NAMESPACE" envDefault:"unknown" json:"namespace" yaml:"namespace"`
-	Domain    string `env:"DOMAIN" json:"domain" yaml:"domain"`
+	Env       string `env:"ENV" default:"development" json:"env" yaml:"env"`
+	Namespace string `env:"NAMESPACE" default:"unknown" json:"namespace" yaml:"namespace"`
+	Domain    string `env:"DOMAIN" example:"example.com" json:"domain" yaml:"domain"`
 }
 
 type LoggerConfig struct {

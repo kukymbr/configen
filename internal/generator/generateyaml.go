@@ -55,7 +55,7 @@ func structToYAMLNode(
 			continue
 		}
 
-		example := parseDefaultValue(tag, valueTagsYAML...)
+		value := parseDefaultValue(tag, valueTagsYAML...)
 		comment := comments[field.Pos()]
 		ft := field.Type()
 
@@ -69,7 +69,7 @@ func structToYAMLNode(
 		}
 
 		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: yamlName}
-		valNode := typeToYAMLNode(pkg, ft, comments, visited, example)
+		valNode := typeToYAMLNode(pkg, ft, comments, visited, value)
 
 		if comment != "" {
 			keyNode.HeadComment = comment
@@ -105,34 +105,50 @@ func parseYAMLTag(tag, fallback string) (name string, skip bool) {
 	return parts[0], false
 }
 
-//nolint:gocognit,cyclop,funlen
+func getYAMLBasicNode(t *types.Basic, value string) *yaml.Node {
+	var tag string
+
+	val := defaultValueForType(t, value)
+
+	switch t.Kind() {
+	case types.Bool:
+		tag = "!!bool"
+	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64,
+		types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
+		tag = "!!int"
+	case types.Float32, types.Float64:
+		tag = "!!float"
+	default:
+		tag = "!!str"
+	}
+
+	return &yaml.Node{Kind: yaml.ScalarNode, Tag: tag, Value: val}
+}
+
+//nolint:cyclop,funlen
 func typeToYAMLNode(
 	pkg *packages.Package,
 	t types.Type,
 	comments map[token.Pos]string,
 	visited map[string]bool,
-	example string,
+	value string,
 ) *yaml.Node {
-	if example != "" && !isMapType(t) && !isSliceOrArray(t) && !isStructLike(t) {
-		return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: example}
-	}
-
 	if visited == nil {
 		visited = make(map[string]bool)
 	}
 
 	switch tt := t.(type) {
 	case *types.Basic:
-		return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: defaultValueForType(t, example)}
+		return getYAMLBasicNode(tt, value)
 	case *types.Pointer:
-		return typeToYAMLNode(pkg, tt.Elem(), comments, visited, example)
+		return typeToYAMLNode(pkg, tt.Elem(), comments, visited, value)
 	case *types.Slice, *types.Array:
 		elemType := tt.(interface{ Elem() types.Type }).Elem()
 
 		seq := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 
-		if example != "" && !isStructLike(elemType) {
-			for _, v := range strings.Split(example, ",") {
+		if value != "" && !isStructLike(elemType) {
+			for _, v := range strings.Split(value, ",") {
 				elemNode := typeToYAMLNode(pkg, elemType, comments, visited, v)
 				seq.Content = append(seq.Content, elemNode)
 			}
@@ -142,10 +158,10 @@ func typeToYAMLNode(
 
 		return seq
 	case *types.Map:
-		if example != "" {
+		if value != "" {
 			m := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
-			for _, p := range strings.Split(example, ",") {
+			for _, p := range strings.Split(value, ",") {
 				kv := strings.SplitN(p, "=", 2)
 				k := kv[0]
 				v := ""
@@ -176,7 +192,7 @@ func typeToYAMLNode(
 			return structToYAMLNode(pkg, st, comments, visited)
 		}
 
-		return typeToYAMLNode(pkg, tt.Underlying(), comments, visited, example)
+		return typeToYAMLNode(pkg, tt.Underlying(), comments, visited, value)
 	case *types.Struct:
 		key := tt.String()
 		if visited[key] {

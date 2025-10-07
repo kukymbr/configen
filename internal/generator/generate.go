@@ -36,9 +36,9 @@ func parseDefaultValue(tagValue string, tags ...string) string {
 	return ""
 }
 
-func defaultValueForType(t types.Type, example string) string {
-	if example != "" {
-		return example
+func defaultValueForType(t types.Type, value string) string {
+	if value != "" {
+		return value
 	}
 
 	switch tt := t.(type) {
@@ -58,21 +58,6 @@ func defaultValueForType(t types.Type, example string) string {
 	}
 
 	return ""
-}
-
-func isMapType(t types.Type) bool {
-	_, ok := t.(*types.Map)
-
-	return ok
-}
-
-func isSliceOrArray(t types.Type) bool {
-	switch t.(type) {
-	case *types.Slice, *types.Array:
-		return true
-	}
-
-	return false
 }
 
 func isStructLike(t types.Type) bool {
