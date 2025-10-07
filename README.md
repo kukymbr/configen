@@ -1,5 +1,10 @@
 # configen
 
+[![License](https://img.shields.io/github/license/kukymbr/configen.svg)](https://github.com/kukymbr/configen/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/release/kukymbr/configen.svg)](https://github.com/kukymbr/configen/releases/latest)
+[![GoDoc](https://godoc.org/github.com/kukymbr/configen?status.svg)](https://godoc.org/github.com/kukymbr/configen)
+[![GoReport](https://goreportcard.com/badge/github.com/kukymbr/configen)](https://goreportcard.com/report/github.com/kukymbr/configen)
+
 The `configen` is a config files generator for the [Golang](https://go.dev), converting this:
 
 ```go
