@@ -42,13 +42,18 @@ func collectEnvVars(
 		}
 
 		tag := st.Tag(i)
-		envName := reflect.StructTag(tag).Get(tagEnv)
 		envPrefix := reflect.StructTag(tag).Get(tagEnvPrefix)
+
+		envName := parseNameTag(tag, tagEnv, "")
 		example := parseDefaultValue(tag, valueTagsEnv...)
 		comment := comments[field.Pos()]
 		ft := field.Type()
 
 		if stt, ok := underlyingStruct(ft); ok {
+			if len(*envs) > 0 && (*envs)[len(*envs)-1] != "" {
+				*envs = append(*envs, "")
+			}
+
 			collectEnvVars(stt, comments, prefix+envPrefix, envs)
 
 			continue

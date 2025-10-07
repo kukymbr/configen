@@ -17,9 +17,14 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Env       string `env:"ENV" envDefault:"development" json:"env" yaml:"env"`
+	// Application environment mode: development|production
+	Env string `env:"ENV" envDefault:"development" json:"env" yaml:"env"`
+
+	// Environment namespace (e.g. "dev1")
 	Namespace string `env:"NAMESPACE" envDefault:"unknown" json:"namespace" yaml:"namespace"`
-	Domain    string `json:"domain" yaml:"domain"`
+
+	// Top-level domain for the cookies
+	Domain string `json:"domain" yaml:"domain"`
 }
 
 type LoggerConfig struct {
@@ -27,6 +32,7 @@ type LoggerConfig struct {
 }
 
 type APIConfig struct {
-	Host string `env:"HOST" envDefault:"0.0.0.0" json:"host" yaml:"host"`
-	Port int    `env:"PORT" envDefault:"8080" json:"port" yaml:"port"`
+	Host   string `env:"HOST" envDefault:"0.0.0.0" json:"host" yaml:"host"`
+	Port   int    `env:"PORT" envDefault:"8080" json:"port" yaml:"port"`
+	Secret string `env:"SECRET,unset" envDefault:"secret" json:"secret" yaml:"secret"`
 }

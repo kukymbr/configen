@@ -6,8 +6,11 @@
 
 # App is an application common settings.
 app:
+    # Application environment mode: development|production
     env: development
+    # Environment namespace (e.g. "dev1")
     namespace: unknown
+    # Top-level domain for the cookies
     domain: ""
 # Logger is a logging setup values.
 logger:
@@ -16,3 +19,4 @@ logger:
 api:
     host: 0.0.0.0
     port: 8080
+    secret: secret

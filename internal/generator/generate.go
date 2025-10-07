@@ -3,6 +3,7 @@ package generator
 import (
 	"go/types"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -82,4 +83,28 @@ func underlyingStruct(t types.Type) (*types.Struct, bool) {
 	}
 
 	return nil, false
+}
+
+func parseNameTag(tagContent string, tagName string, fallback string) string {
+	if tagContent == "" {
+		return fallback
+	}
+
+	st := reflect.StructTag(tagContent)
+
+	nameTag := st.Get(tagName)
+	if nameTag == "" {
+		return fallback
+	}
+
+	parts := strings.Split(nameTag, ",")
+	if parts[0] == "-" {
+		return ""
+	}
+
+	if parts[0] == "" {
+		return fallback
+	}
+
+	return parts[0]
 }

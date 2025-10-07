@@ -50,8 +50,8 @@ func structToYAMLNode(
 
 		tag := st.Tag(i)
 
-		yamlName, skip := parseYAMLTag(tag, field.Name())
-		if skip {
+		yamlName := parseNameTag(tag, tagYAML, field.Name())
+		if yamlName == "" {
 			continue
 		}
 

@@ -56,7 +56,7 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	cmd.Flags().StringVar(
 		&opt.YAMLPath,
 		"yaml",
-		"true",
+		"",
 		"Path to YAML config file, set 'true' to enable with default path",
 	)
 
@@ -75,6 +75,7 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	)
 
 	_ = cmd.MarkFlagRequired("struct")
+	cmd.MarkFlagsOneRequired("yaml", "env")
 	_ = cmd.MarkFlagFilename("yaml")
 	_ = cmd.MarkFlagFilename("env")
 	_ = cmd.MarkFlagDirname("source")
