@@ -10,6 +10,8 @@ import (
 
 const (
 	DefaultSourceDir = "."
+	DefaultEnvTag    = "env"
+	DefaultYAMLTag   = "yaml"
 )
 
 type Options struct {
@@ -33,6 +35,9 @@ type OutputOptions struct {
 
 	// Path is a target file path.
 	Path string
+
+	// Tag is a field names tag.
+	Tag string
 }
 
 func (opt Options) Debug() string {
@@ -58,6 +63,14 @@ func prepareOptions(opt *Options) error {
 
 	if opt.Env.Path == "" {
 		opt.Env.Path = strings.ToLower(opt.StructName) + ".env"
+	}
+
+	if opt.YAML.Tag == "" {
+		opt.YAML.Tag = DefaultYAMLTag
+	}
+
+	if opt.Env.Tag == "" {
+		opt.Env.Tag = DefaultEnvTag
 	}
 
 	if err := ensureDirs(opt.YAML, opt.Env); err != nil {

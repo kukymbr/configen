@@ -11,10 +11,10 @@ import (
 	"github.com/kukymbr/configen/internal/utils"
 )
 
-func generateEnv(src *sourceStruct, target string) error {
+func generateEnv(src *sourceStruct, target string, tagName string) error {
 	var envLines []string
 
-	collectEnvVars(src.st, src.comments, "", &envLines)
+	collectEnvVars(src.st, src.comments, "", &envLines, tagName)
 
 	doc := getDocComment("#", src.name, src.doc)
 
@@ -34,6 +34,7 @@ func collectEnvVars(
 	comments map[token.Pos]string,
 	prefix string,
 	envs *[]string,
+	tagName string,
 ) {
 	for i := 0; i < st.NumFields(); i++ {
 		field := st.Field(i)
@@ -44,7 +45,7 @@ func collectEnvVars(
 		tag := st.Tag(i)
 		envPrefix := reflect.StructTag(tag).Get(tagEnvPrefix)
 
-		envName := parseNameTag(tag, tagEnv, "")
+		envName := parseNameTag(tag, tagName, "")
 		example := parseDefaultValue(tag, valueTagsEnv...)
 		comment := comments[field.Pos()]
 		ft := field.Type()
@@ -54,7 +55,7 @@ func collectEnvVars(
 				*envs = append(*envs, "")
 			}
 
-			collectEnvVars(stt, comments, prefix+envPrefix, envs)
+			collectEnvVars(stt, comments, prefix+envPrefix, envs, tagName)
 
 			continue
 		}

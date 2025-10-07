@@ -25,6 +25,12 @@ type options struct {
 	// Set "true" for enable the generator with a default file path.
 	EnvPath string
 
+	// YAMLTag is a tag name for a YAML field names, `yaml` by default.
+	YAMLTag string
+
+	// EnvTag is a tag name for a dotenv field names, `env` by default.
+	EnvTag string
+
 	// SourceDir is a directory of the source go files.
 	// Default is the current directory (most applicable for go:generate).
 	SourceDir string
@@ -38,13 +44,16 @@ func (opt options) ToGeneratorOptions() generator.Options {
 
 	outOpts := []struct {
 		Input  string
+		Tag    string
 		Target *generator.OutputOptions
 	}{
-		{Input: opt.YAMLPath, Target: &gen.YAML},
-		{Input: opt.EnvPath, Target: &gen.Env},
+		{Input: opt.YAMLPath, Tag: opt.YAMLTag, Target: &gen.YAML},
+		{Input: opt.EnvPath, Tag: opt.EnvTag, Target: &gen.Env},
 	}
 
 	for _, out := range outOpts {
+		out.Target.Tag = out.Tag
+
 		keyword := strings.ToLower(out.Input)
 		switch keyword {
 		case keywordTrue:

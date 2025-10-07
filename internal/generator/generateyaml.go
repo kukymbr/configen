@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go/token"
 	"go/types"
-	"reflect"
 	"strings"
 
 	"github.com/kukymbr/configen/internal/logger"
@@ -13,8 +12,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func generateYAML(src *sourceStruct, target string) error {
-	yamlNode := structToYAMLNode(src.pkg, src.st, src.comments, nil)
+func generateYAML(src *sourceStruct, target string, tagName string) error {
+	yamlNode := structToYAMLNode(src.pkg, src.st, src.comments, nil, tagName)
 
 	data, err := yaml.Marshal(yamlNode)
 	if err != nil {
@@ -39,6 +38,7 @@ func structToYAMLNode(
 	st *types.Struct,
 	comments map[token.Pos]string,
 	visited map[string]bool,
+	tagName string,
 ) *yaml.Node {
 	node := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
@@ -50,7 +50,7 @@ func structToYAMLNode(
 
 		tag := st.Tag(i)
 
-		yamlName := parseNameTag(tag, tagYAML, field.Name())
+		yamlName := parseNameTag(tag, tagName, field.Name())
 		if yamlName == "" {
 			continue
 		}
@@ -61,7 +61,7 @@ func structToYAMLNode(
 
 		if field.Anonymous() {
 			if stt, ok := underlyingStruct(ft); ok {
-				embedded := structToYAMLNode(pkg, stt, comments, visited)
+				embedded := structToYAMLNode(pkg, stt, comments, visited, tagName)
 				node.Content = append(node.Content, embedded.Content...)
 
 				continue
@@ -69,7 +69,7 @@ func structToYAMLNode(
 		}
 
 		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: yamlName}
-		valNode := typeToYAMLNode(pkg, ft, comments, visited, value)
+		valNode := typeToYAMLNode(pkg, ft, comments, visited, value, tagName)
 
 		if comment != "" {
 			keyNode.HeadComment = comment
@@ -79,30 +79,6 @@ func structToYAMLNode(
 	}
 
 	return node
-}
-
-func parseYAMLTag(tag, fallback string) (name string, skip bool) {
-	if tag == "" {
-		return fallback, false
-	}
-
-	st := reflect.StructTag(tag)
-
-	yamlTag := st.Get(tagYAML)
-	if yamlTag == "" {
-		return fallback, false
-	}
-
-	parts := strings.Split(yamlTag, ",")
-	if parts[0] == "-" {
-		return "", true
-	}
-
-	if parts[0] == "" {
-		return fallback, false
-	}
-
-	return parts[0], false
 }
 
 func getYAMLBasicNode(t *types.Basic, value string) *yaml.Node {
@@ -132,6 +108,7 @@ func typeToYAMLNode(
 	comments map[token.Pos]string,
 	visited map[string]bool,
 	value string,
+	tagName string,
 ) *yaml.Node {
 	if visited == nil {
 		visited = make(map[string]bool)
@@ -141,7 +118,7 @@ func typeToYAMLNode(
 	case *types.Basic:
 		return getYAMLBasicNode(tt, value)
 	case *types.Pointer:
-		return typeToYAMLNode(pkg, tt.Elem(), comments, visited, value)
+		return typeToYAMLNode(pkg, tt.Elem(), comments, visited, value, tagName)
 	case *types.Slice, *types.Array:
 		elemType := tt.(interface{ Elem() types.Type }).Elem()
 
@@ -149,11 +126,11 @@ func typeToYAMLNode(
 
 		if value != "" && !isStructLike(elemType) {
 			for _, v := range strings.Split(value, ",") {
-				elemNode := typeToYAMLNode(pkg, elemType, comments, visited, v)
+				elemNode := typeToYAMLNode(pkg, elemType, comments, visited, v, tagName)
 				seq.Content = append(seq.Content, elemNode)
 			}
 		} else {
-			seq.Content = append(seq.Content, typeToYAMLNode(pkg, elemType, comments, visited, ""))
+			seq.Content = append(seq.Content, typeToYAMLNode(pkg, elemType, comments, visited, "", tagName))
 		}
 
 		return seq
@@ -189,10 +166,10 @@ func typeToYAMLNode(
 
 			visited[key] = true
 
-			return structToYAMLNode(pkg, st, comments, visited)
+			return structToYAMLNode(pkg, st, comments, visited, tagName)
 		}
 
-		return typeToYAMLNode(pkg, tt.Underlying(), comments, visited, value)
+		return typeToYAMLNode(pkg, tt.Underlying(), comments, visited, value, tagName)
 	case *types.Struct:
 		key := tt.String()
 		if visited[key] {
@@ -202,7 +179,7 @@ func typeToYAMLNode(
 
 		visited[key] = true
 
-		return structToYAMLNode(pkg, tt, comments, visited)
+		return structToYAMLNode(pkg, tt, comments, visited, tagName)
 	}
 
 	return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: ""}

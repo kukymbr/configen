@@ -49,7 +49,7 @@ func (g *Generator) Generate(_ context.Context) error {
 			continue
 		}
 
-		if err := gen.fn(&src, gen.out.Path); err != nil {
+		if err := gen.fn(&src, gen.out.Path, gen.out.Tag); err != nil {
 			return err
 		}
 	}
@@ -110,4 +110,4 @@ type sourceStruct struct {
 	comments map[token.Pos]string
 }
 
-type generatorFunc func(src *sourceStruct, target string) error
+type generatorFunc func(src *sourceStruct, target string, tagName string) error

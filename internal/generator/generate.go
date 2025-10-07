@@ -7,11 +7,9 @@ import (
 )
 
 const (
-	tagEnv        = "env"
 	tagEnvPrefix  = "envPrefix"
 	tagEnvDefault = "envDefault"
 
-	tagYAML    = "yaml"
 	tagDefault = "default"
 	tagExample = "example"
 )

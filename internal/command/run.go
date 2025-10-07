@@ -48,29 +48,37 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 
 	cmd.Flags().StringVar(
 		&opt.StructName,
-		"struct",
-		"",
+		"struct", "",
 		"Name of the struct to generate config from",
 	)
 
 	cmd.Flags().StringVar(
 		&opt.YAMLPath,
-		"yaml",
-		"",
+		"yaml", "",
 		"Path to YAML config file, set 'true' to enable with default path",
 	)
 
 	cmd.Flags().StringVar(
 		&opt.EnvPath,
-		"env",
-		"",
+		"env", "",
 		"Path to dotenv config file, set 'true' to enable with default path",
 	)
 
 	cmd.Flags().StringVar(
+		&opt.YAMLTag,
+		"yaml-tag", generator.DefaultYAMLTag,
+		"Tag name for a YAML field names",
+	)
+
+	cmd.Flags().StringVar(
+		&opt.EnvTag,
+		"env-tag", generator.DefaultEnvTag,
+		"Tag name for a dotenv field names",
+	)
+
+	cmd.Flags().StringVar(
 		&opt.SourceDir,
-		"source",
-		generator.DefaultSourceDir,
+		"source", generator.DefaultSourceDir,
 		"Directory of the source go files",
 	)
 
