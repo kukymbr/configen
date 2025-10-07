@@ -116,12 +116,15 @@ Usage:
   configen [flags]
 
 Flags:
-      --fmt string            Formatter used to format generated go files (gofmt|noop) (default "gofmt")
-  -h, --help                  help for configen
-      --package string        Target package name of the generated code 
-  -s, --silent                Silent mode
-      --target string         Directory for the generated Go files (default ".")
-  -v, --version               version for configen
+      --env string        Path to dotenv config file, set 'true' to enable with default path
+      --env-tag string    Tag name for a dotenv field names (default "env")
+  -h, --help              help for configen
+  -s, --silent            Silent mode
+      --source string     Directory of the source go files (default ".")
+      --struct string     Name of the struct to generate config from
+  -v, --version           version for configen
+      --yaml string       Path to YAML config file, set 'true' to enable with default path
+      --yaml-tag string   Tag name for a YAML field names (default "yaml")
 ```
 
 ## Contributing
