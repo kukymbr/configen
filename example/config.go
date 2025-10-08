@@ -1,5 +1,7 @@
 package example
 
+import "errors"
+
 // Added as an example usage.
 // To regenerate example files in the configen repository, use `make generate_example`.
 //go:generate go tool configen --struct=Config --yaml=true --env=example.env
@@ -28,11 +30,41 @@ type AppConfig struct {
 }
 
 type LoggerConfig struct {
-	Level string `env:"LEVEL" envDefault:"debug" json:"level" yaml:"level"`
+	Level LogLevel `env:"LEVEL" envDefault:"debug" json:"level" yaml:"level"`
 }
 
 type APIConfig struct {
 	Host   string `env:"HOST" envDefault:"0.0.0.0" json:"host" yaml:"host"`
 	Port   int    `env:"PORT" envDefault:"8080" json:"port" yaml:"port"`
 	Secret string `env:"SECRET,unset" envDefault:"secret" json:"secret" yaml:"secret"`
+}
+
+type LogLevel int
+
+func (l *LogLevel) MarshalText() ([]byte, error) {
+	switch *l {
+	case 0:
+		return []byte("debug"), nil
+	case 1:
+		return []byte("info"), nil
+	case 2:
+		return []byte("error"), nil
+	}
+
+	return []byte(""), errors.New("invalid log level")
+}
+
+func (l *LogLevel) UnmarshalText(text []byte) error {
+	val := string(text)
+
+	switch val {
+	case "debug":
+		*l = LogLevel(0)
+	case "info":
+		*l = LogLevel(1)
+	case "error":
+		*l = LogLevel(2)
+	}
+
+	return errors.New("invalid log level")
 }

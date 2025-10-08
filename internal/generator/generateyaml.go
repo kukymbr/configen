@@ -114,6 +114,14 @@ func typeToYAMLNode(
 		visited = make(map[string]bool)
 	}
 
+	if isTextMarshaler(t) {
+		return &yaml.Node{
+			Kind:  yaml.ScalarNode,
+			Value: value,
+			Tag:   "!!str",
+		}
+	}
+
 	switch tt := t.(type) {
 	case *types.Basic:
 		return getYAMLBasicNode(tt, value)
