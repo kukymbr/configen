@@ -6,29 +6,30 @@ import (
 	"go/types"
 	"strings"
 
+	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/kukymbr/configen/internal/logger"
 	"github.com/kukymbr/configen/internal/utils"
 	"golang.org/x/tools/go/packages"
 	"gopkg.in/yaml.v3"
 )
 
-func generateYAML(src *sourceStruct, target string, tagName string) error {
-	yamlNode := structToYAMLNode(src.pkg, src.st, src.comments, nil, tagName)
+func generateYAML(src *gentype.SourceStruct, out gentype.OutputOptions) error {
+	yamlNode := structToYAMLNode(src.Package, src.Struct, src.Comments, nil, out.Tag)
 
 	data, err := yaml.Marshal(yamlNode)
 	if err != nil {
 		return fmt.Errorf("marshal YAML nodes: %w", err)
 	}
 
-	doc := getDocComment("#", src.name, src.doc)
+	doc := gentype.GetDocComment("#", src.Name, src.Doc)
 
 	data = append([]byte(doc), data...)
 
-	if err := utils.WriteFile(data, target); err != nil {
+	if err := utils.WriteFile(data, out.Path); err != nil {
 		return err
 	}
 
-	logger.Successf("Generated %s file", target)
+	logger.Successf("Generated %s file", out.Path)
 
 	return nil
 }

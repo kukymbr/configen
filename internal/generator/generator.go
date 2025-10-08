@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go/token"
 	"go/types"
 
+	"github.com/kukymbr/configen/internal/generator/gentype"
+	"github.com/kukymbr/configen/internal/generator/gogetter"
 	"github.com/kukymbr/configen/internal/logger"
 	"golang.org/x/tools/go/packages"
 )
@@ -28,7 +29,7 @@ type Generator struct {
 	opt Options
 }
 
-func (g *Generator) Generate(_ context.Context) error {
+func (g *Generator) Generate(ctx context.Context) error {
 	logger.Debugf("Doing some magic...")
 
 	src, err := g.loadStruct()
@@ -37,11 +38,12 @@ func (g *Generator) Generate(_ context.Context) error {
 	}
 
 	generators := []struct {
-		fn  generatorFunc
-		out OutputOptions
+		fn  gentype.GeneratorFunc
+		out gentype.OutputOptions
 	}{
 		{fn: generateYAML, out: g.opt.YAML},
 		{fn: generateEnv, out: g.opt.Env},
+		{fn: gogetter.Generate, out: g.opt.GoGetter},
 	}
 
 	for _, gen := range generators {
@@ -49,7 +51,11 @@ func (g *Generator) Generate(_ context.Context) error {
 			continue
 		}
 
-		if err := gen.fn(&src, gen.out.Path, gen.out.Tag); err != nil {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+
+		if err := gen.fn(&src, gen.out); err != nil {
 			return err
 		}
 	}
@@ -59,7 +65,7 @@ func (g *Generator) Generate(_ context.Context) error {
 	return nil
 }
 
-func (g *Generator) loadStruct() (sourceStruct, error) {
+func (g *Generator) loadStruct() (gentype.SourceStruct, error) {
 	conf := &packages.Config{
 		Mode: packages.NeedTypes | packages.NeedTypesInfo | packages.NeedSyntax | packages.NeedFiles,
 		Dir:  g.opt.SourceDir,
@@ -67,47 +73,39 @@ func (g *Generator) loadStruct() (sourceStruct, error) {
 
 	pkgs, err := packages.Load(conf, ".")
 	if err != nil {
-		return sourceStruct{}, fmt.Errorf("load package: %w", err)
+		return gentype.SourceStruct{}, fmt.Errorf("load package: %w", err)
 	}
 
 	if len(pkgs) == 0 {
-		return sourceStruct{}, errors.New("no packages found")
+		return gentype.SourceStruct{}, errors.New("no packages found")
 	}
 
 	pkg := pkgs[0]
 
 	obj := pkg.Types.Scope().Lookup(g.opt.StructName)
 	if obj == nil {
-		return sourceStruct{}, errors.New("struct not found: " + g.opt.StructName)
+		return gentype.SourceStruct{}, errors.New("struct not found: " + g.opt.StructName)
 	}
 
 	named, ok := obj.Type().(*types.Named)
 	if !ok {
-		return sourceStruct{}, fmt.Errorf("%q is not a named type", g.opt.StructName)
+		return gentype.SourceStruct{}, fmt.Errorf("%q is not a named type", g.opt.StructName)
 	}
 
 	structType, ok := named.Underlying().(*types.Struct)
 	if !ok {
-		return sourceStruct{}, fmt.Errorf("%q is not a struct", g.opt.StructName)
+		return gentype.SourceStruct{}, fmt.Errorf("%q is not a struct", g.opt.StructName)
 	}
 
-	src := sourceStruct{
-		pkg:      pkg,
-		st:       structType,
-		name:     g.opt.StructName,
-		doc:      getStructDocComment(pkg, g.opt.StructName),
-		comments: collectComments(pkg),
+	src := gentype.SourceStruct{
+		Package: pkg,
+		Struct:  structType,
+		Named:   named,
+
+		Name:     g.opt.StructName,
+		Doc:      gentype.GetStructDocComment(pkg, g.opt.StructName),
+		Comments: gentype.CollectComments(pkg),
 	}
 
 	return src, nil
 }
-
-type sourceStruct struct {
-	pkg      *packages.Package
-	st       *types.Struct
-	name     string
-	doc      string
-	comments map[token.Pos]string
-}
-
-type generatorFunc func(src *sourceStruct, target string, tagName string) error

@@ -7,24 +7,25 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/kukymbr/configen/internal/logger"
 	"github.com/kukymbr/configen/internal/utils"
 )
 
-func generateEnv(src *sourceStruct, target string, tagName string) error {
+func generateEnv(src *gentype.SourceStruct, out gentype.OutputOptions) error {
 	var envLines []string
 
-	collectEnvVars(src.st, src.comments, "", &envLines, tagName)
+	collectEnvVars(src.Struct, src.Comments, "", &envLines, out.Tag)
 
-	doc := getDocComment("#", src.name, src.doc)
+	doc := gentype.GetDocComment("#", src.Name, src.Doc)
 
 	envContent := doc + strings.Join(envLines, "\n") + "\n"
 
-	if err := utils.WriteFile([]byte(envContent), target); err != nil {
+	if err := utils.WriteFile([]byte(envContent), out.Path); err != nil {
 		return err
 	}
 
-	logger.Successf("Generated %s file", target)
+	logger.Successf("Generated %s file", out.Path)
 
 	return nil
 }

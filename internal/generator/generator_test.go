@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/kukymbr/configen/internal/generator"
+	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -37,11 +38,11 @@ func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 			GetOptFunc: func() generator.Options {
 				return generator.Options{
 					StructName: "Config",
-					YAML: generator.OutputOptions{
+					YAML: gentype.OutputOptions{
 						Enable: true,
 						Path:   s.getTargetPath("test1.yaml"),
 					},
-					Env: generator.OutputOptions{
+					Env: gentype.OutputOptions{
 						Enable: true,
 						Path:   s.getTargetPath("test1.env"),
 					},

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/kukymbr/configen/internal/generator"
+	"github.com/kukymbr/configen/internal/generator/gentype"
 )
 
 const (
@@ -25,6 +26,8 @@ type options struct {
 	// Set "true" for enable the generator with a default file path.
 	EnvPath string
 
+	GoPath string
+
 	// YAMLTag is a tag name for a YAML field names, `yaml` by default.
 	YAMLTag string
 
@@ -34,6 +37,9 @@ type options struct {
 	// SourceDir is a directory of the source go files.
 	// Default is the current directory (most applicable for go:generate).
 	SourceDir string
+
+	GoTargetStructName  string
+	GoTargetPackageName string
 }
 
 func (opt options) ToGeneratorOptions() generator.Options {
@@ -45,10 +51,11 @@ func (opt options) ToGeneratorOptions() generator.Options {
 	outOpts := []struct {
 		Input  string
 		Tag    string
-		Target *generator.OutputOptions
+		Target *gentype.OutputOptions
 	}{
 		{Input: opt.YAMLPath, Tag: opt.YAMLTag, Target: &gen.YAML},
 		{Input: opt.EnvPath, Tag: opt.EnvTag, Target: &gen.Env},
+		{Input: opt.GoPath, Target: &gen.GoGetter},
 	}
 
 	for _, out := range outOpts {
@@ -67,6 +74,9 @@ func (opt options) ToGeneratorOptions() generator.Options {
 		out.Target.Enable = true
 		out.Target.Path = out.Input
 	}
+
+	gen.GoGetter.TargetStructName = opt.GoTargetStructName
+	gen.GoGetter.TargetPackageName = opt.GoTargetPackageName
 
 	return gen
 }

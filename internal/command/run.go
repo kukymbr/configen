@@ -43,6 +43,7 @@ func Run() error {
 	return cmd.Execute()
 }
 
+//nolint:funlen
 func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	cmd.PersistentFlags().BoolVarP(silent, "silent", "s", false, "Silent mode")
 
@@ -65,6 +66,12 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	)
 
 	cmd.Flags().StringVar(
+		&opt.GoPath,
+		"go", "",
+		"Path to Golang config getter file, set 'true' to enable with default path",
+	)
+
+	cmd.Flags().StringVar(
 		&opt.YAMLTag,
 		"yaml-tag", generator.DefaultYAMLTag,
 		"Tag name for a YAML field names",
@@ -77,14 +84,27 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	)
 
 	cmd.Flags().StringVar(
+		&opt.GoTargetStructName,
+		"go-struct", generator.DefaultGoTargetStructName,
+		"Target struct name",
+	)
+
+	cmd.Flags().StringVar(
+		&opt.GoTargetPackageName,
+		"go-pkg", "",
+		"Target package name",
+	)
+
+	cmd.Flags().StringVar(
 		&opt.SourceDir,
 		"source", generator.DefaultSourceDir,
 		"Directory of the source go files",
 	)
 
 	_ = cmd.MarkFlagRequired("struct")
-	cmd.MarkFlagsOneRequired("yaml", "env")
+	cmd.MarkFlagsOneRequired("yaml", "env", "go")
 	_ = cmd.MarkFlagFilename("yaml")
 	_ = cmd.MarkFlagFilename("env")
+	_ = cmd.MarkFlagFilename("go")
 	_ = cmd.MarkFlagDirname("source")
 }

@@ -14,12 +14,12 @@ var interfaces struct {
 
 //nolint:gochecknoinits
 func init() {
-	if err := loadInterfaces(); err != nil {
+	if err := LoadInterfaces(); err != nil {
 		panic(err)
 	}
 }
 
-func loadInterfaces() error {
+func LoadInterfaces() error {
 	var err error
 
 	interfaces.textMarshaler, err = lookupInterface("encoding", "TextMarshaler")
