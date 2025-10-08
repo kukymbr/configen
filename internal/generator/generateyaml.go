@@ -101,7 +101,7 @@ func getYAMLBasicNode(t *types.Basic, value string) *yaml.Node {
 	return &yaml.Node{Kind: yaml.ScalarNode, Tag: tag, Value: val}
 }
 
-//nolint:cyclop,funlen
+//nolint:cyclop,funlen,gocognit
 func typeToYAMLNode(
 	pkg *packages.Package,
 	t types.Type,

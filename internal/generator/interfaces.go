@@ -12,6 +12,7 @@ var interfaces struct {
 	stringer      *types.Interface
 }
 
+//nolint:gochecknoinits
 func init() {
 	if err := loadInterfaces(); err != nil {
 		panic(err)
