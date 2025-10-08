@@ -7,10 +7,11 @@ import (
 )
 
 type ApiConfig struct {
-	host   string
-	port   int
-	secret string
-	reqTtl time.Duration
+	host    string
+	port    int
+	secret  string
+	reqTtl  time.Duration
+	respTtl time.Duration
 }
 
 func (c ApiConfig) Host() string {
@@ -29,13 +30,18 @@ func (c ApiConfig) ReqTTL() time.Duration {
 	return c.reqTtl
 }
 
+func (c ApiConfig) RespTTL() time.Duration {
+	return c.respTtl
+}
+
 // Constructor for ApiConfig.
 func NewApiConfig(dto apiConfig) ApiConfig {
 	return ApiConfig{
-		host:   dto.Host,
-		port:   dto.Port,
-		secret: dto.Secret,
-		reqTtl: dto.ReqTTL,
+		host:    dto.Host,
+		port:    dto.Port,
+		secret:  dto.Secret,
+		reqTtl:  dto.ReqTTL,
+		respTtl: dto.RespTTL,
 	}
 }
 

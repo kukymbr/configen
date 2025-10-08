@@ -210,8 +210,15 @@ func processStruct(
 
 func filterImports(targetPackageName string, imports []string) []string {
 	filtered := make([]string, 0, len(imports))
+	index := make(map[string]struct{}, len(imports))
 
 	for _, imp := range imports {
+		if _, exist := index[imp]; exist {
+			continue
+		}
+
+		index[imp] = struct{}{}
+
 		pkg := packageNameFromID(imp)
 		if pkg == targetPackageName {
 			continue

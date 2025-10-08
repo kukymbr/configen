@@ -22,3 +22,4 @@ api:
     port: 8080
     secret: secret
     req_ttl: 1h
+    resp_ttl: 1h
