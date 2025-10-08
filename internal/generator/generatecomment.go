@@ -3,6 +3,7 @@ package generator
 import (
 	"go/ast"
 	"go/token"
+	"regexp"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -68,7 +69,12 @@ func collectComments(pkg *packages.Package) map[token.Pos]string {
 }
 
 func getDocComment(symbol string, structName string, doc string) string {
+	rxGodoc := regexp.MustCompile(`^` + structName + ` godoc\s`)
+
 	doc = strings.TrimSpace(doc)
+	doc = rxGodoc.ReplaceAllString(doc, "")
+	doc = strings.TrimSpace(doc)
+
 	symbol += " "
 
 	comment := strings.Builder{}

@@ -9,7 +9,9 @@ import (
 // To regenerate example files in the configen repository, use `make generate_example`.
 //go:generate go tool configen --struct=Config --yaml=true --env=example.env
 
-// Config is an example application config.
+// Config godoc
+//
+// Main application config.
 type Config struct {
 	// App is an application common settings.
 	App AppConfig `envPrefix:"APP_" json:"app" yaml:"app"`
