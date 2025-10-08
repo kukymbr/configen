@@ -114,7 +114,7 @@ func typeToYAMLNode(
 		visited = make(map[string]bool)
 	}
 
-	if isTextMarshaler(t) {
+	if isTextMarshaler(t) || isStringer(t) {
 		return &yaml.Node{
 			Kind:  yaml.ScalarNode,
 			Value: value,

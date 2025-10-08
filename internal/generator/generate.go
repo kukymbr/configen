@@ -4,8 +4,6 @@ import (
 	"go/types"
 	"reflect"
 	"strings"
-
-	"golang.org/x/tools/go/packages"
 )
 
 const (
@@ -107,49 +105,4 @@ func parseNameTag(tagContent string, tagName string, fallback string) string {
 	}
 
 	return parts[0]
-}
-
-var (
-	textMarshalerInterface   types.Type
-	textUnmarshalerInterface types.Type
-)
-
-func loadTextMarshalerInterfaces() (marshaler, unmarshaler types.Type) {
-	if textMarshalerInterface != nil && textUnmarshalerInterface != nil {
-		return textMarshalerInterface, textUnmarshalerInterface
-	}
-
-	cfg := &packages.Config{
-		Mode: packages.NeedTypes | packages.NeedTypesInfo,
-	}
-
-	pkgs, err := packages.Load(cfg, "encoding")
-	if err != nil || len(pkgs) == 0 {
-		return nil, nil
-	}
-
-	scope := pkgs[0].Types.Scope()
-	if tm := scope.Lookup("TextMarshaler"); tm != nil {
-		textMarshalerInterface = tm.Type()
-	}
-
-	if tu := scope.Lookup("TextUnmarshaler"); tu != nil {
-		textUnmarshalerInterface = tu.Type()
-	}
-
-	return textMarshalerInterface, textUnmarshalerInterface
-}
-
-func isTextMarshaler(typ types.Type) bool {
-	marshaler, unmarshaler := loadTextMarshalerInterfaces()
-
-	if types.Implements(typ, marshaler.Underlying().(*types.Interface)) {
-		return true
-	}
-
-	if types.Implements(types.NewPointer(typ), unmarshaler.Underlying().(*types.Interface)) {
-		return true
-	}
-
-	return false
 }
