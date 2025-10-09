@@ -11,6 +11,7 @@ import (
 	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/kukymbr/configen/internal/generator/utils"
 	"github.com/kukymbr/configen/internal/logger"
+	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -59,6 +60,8 @@ func (g *Generator) Generate(ctx context.Context) error {
 		},
 	}
 
+	errGroup, ctx := errgroup.WithContext(ctx)
+
 	for _, gen := range generators {
 		if !gen.out.Enable {
 			continue
@@ -70,17 +73,24 @@ func (g *Generator) Generate(ctx context.Context) error {
 
 		adapter := gen.adapter(gen.out)
 
-		// TODO: run in routines
-		files, err := adapter.Generate(ctx)
-		if err != nil {
-			return err
-		}
-
-		for _, content := range files {
-			if err := utils.WriteFile(content, gen.out.Path); err != nil {
+		errGroup.Go(func() error {
+			files, err := adapter.Generate(ctx)
+			if err != nil {
 				return err
 			}
-		}
+
+			for _, content := range files {
+				if err := utils.WriteFile(content, gen.out.Path); err != nil {
+					return err
+				}
+			}
+
+			return nil
+		})
+	}
+
+	if err := errGroup.Wait(); err != nil {
+		return err
 	}
 
 	logger.Successf("All done.")
