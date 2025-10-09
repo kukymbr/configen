@@ -67,3 +67,18 @@ func (l *LogLevel) MarshalText() ([]byte, error) {
 
 	return []byte(""), errors.New("invalid log level")
 }
+
+func (l *LogLevel) UnmarshalText(text []byte) error {
+	switch string(text) {
+	case "debug":
+		*l = 0
+	case "info":
+		*l = 1
+	case "error":
+		*l = 2
+	default:
+		return errors.New("invalid log level")
+	}
+
+	return nil
+}

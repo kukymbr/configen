@@ -88,19 +88,19 @@ func ParseDefaultValue(tagValue string, tags ...string) string {
 	return ""
 }
 
-func GetUnderlyingStruct(t types.Type) (*types.Struct, bool) {
+func GetUnderlyingStruct(t types.Type) (*types.Struct, *types.Named, bool) {
 	switch tt := t.(type) {
 	case *types.Pointer:
 		return GetUnderlyingStruct(tt.Elem())
 	case *types.Named:
 		if st, ok := tt.Underlying().(*types.Struct); ok {
-			return st, true
+			return st, tt, true
 		}
 	case *types.Struct:
-		return tt, true
+		return tt, nil, true
 	}
 
-	return nil, false
+	return nil, nil, false
 }
 
 func DefaultValueForType(t types.Type, value string) string {

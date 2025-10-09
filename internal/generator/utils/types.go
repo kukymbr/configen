@@ -23,6 +23,8 @@ func ParsePackageName(pkg any) string {
 				return name
 			}
 		}
+	case *types.Named:
+		return packageNameFromPath(p.Obj().Pkg().Path())
 	case string:
 		if name := packageNameFromType(p); name != "" {
 			return name

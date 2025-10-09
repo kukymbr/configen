@@ -37,10 +37,6 @@ func (g *YAML) processField(
 	field *types.Var,
 	tag string,
 ) []*yaml.Node {
-	if !field.Exported() {
-		return nil
-	}
-
 	yamlName := gentype.ParseNameTag(tag, g.OutputOptions.Tag, field.Name())
 	if yamlName == "" {
 		return nil
@@ -51,8 +47,11 @@ func (g *YAML) processField(
 	ft := field.Type()
 
 	if field.Anonymous() {
-		if stt, ok := gentype.GetUnderlyingStruct(ft); ok {
+		if stt, _, ok := gentype.GetUnderlyingStruct(ft); ok {
 			embedded := g.structToYAMLNode(ctx, stt)
+			if embedded == nil {
+				return nil
+			}
 
 			return embedded.Content
 		}
@@ -70,7 +69,7 @@ func (g *YAML) processField(
 
 //nolint:cyclop,funlen
 func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string) *yaml.Node {
-	if gentype.IsTextMarshaler(t) || gentype.IsStringer(t) {
+	if gentype.IsTextUnmarshaler(t) || gentype.IsStringer(t) {
 		return &yaml.Node{
 			Kind:  yaml.ScalarNode,
 			Value: value,

@@ -1,0 +1,104 @@
+package env
+
+import (
+	"context"
+	"fmt"
+	"go/types"
+	"reflect"
+
+	"github.com/kukymbr/configen/internal/generator/gentype"
+	"github.com/kukymbr/configen/internal/generator/utils"
+)
+
+func (g *Env) collectEnvVars(ctx context.Context, st *types.Struct, prefix string) {
+	if ctx.Err() != nil {
+		return
+	}
+
+	for i := 0; i < st.NumFields(); i++ {
+		field := st.Field(i)
+		tag := st.Tag(i)
+
+		if !field.Exported() {
+			continue
+		}
+
+		g.processField(ctx, field, tag, prefix)
+	}
+}
+
+func (g *Env) processField(ctx context.Context, field *types.Var, tag string, prefix string) {
+	envName := gentype.ParseNameTag(tag, g.OutputOptions.Tag, "")
+	envPrefix := reflect.StructTag(tag).Get(gentype.TagEnvPrefix)
+	example := gentype.ParseDefaultValue(tag, gentype.ValueTagsEnv()...)
+	value := gentype.NewNullable[string]()
+
+	comment := g.Source.CommentsMap[field.Pos()]
+	ft := field.Type()
+
+	if field.Anonymous() {
+		g.processAnonymousField(ctx, ft, prefix)
+
+		return
+	}
+
+	if stt, named, ok := gentype.GetUnderlyingStruct(ft); ok {
+		if len(g.envs) > 0 && g.envs[len(g.envs)-1] != "" {
+			// Separate substructs with space.
+			g.envs = append(g.envs, "")
+		}
+
+		if named == nil {
+			g.collectEnvVars(ctx, stt, prefix+envPrefix)
+
+			return
+		}
+
+		if !g.isTargetPackage(named) {
+			return
+		}
+
+		if gentype.IsTextUnmarshaler(stt) {
+			value.Set(gentype.DefaultValueForType(ft, example))
+		} else {
+			g.collectEnvVars(ctx, stt, prefix+envPrefix)
+		}
+	}
+
+	if envName == "" {
+		return
+	}
+
+	if !value.IsSet() {
+		value.Set(gentype.DefaultValueForType(ft, example))
+	}
+
+	if comment != "" {
+		g.envs = append(g.envs, fmt.Sprintf("# %s", comment))
+	}
+
+	g.envs = append(g.envs, fmt.Sprintf("%s%s=%s", prefix, envName, value.Value()))
+}
+
+// processAnonymousField expands anonymous embedded struct fields in env values.
+func (g *Env) processAnonymousField(ctx context.Context, ft types.Type, prefix string) {
+	stt, named, ok := gentype.GetUnderlyingStruct(ft)
+	if !ok {
+		return
+	}
+
+	if named == nil {
+		return
+	}
+
+	if !g.isTargetPackage(named) {
+		// TODO: maybe we should let user decide
+		return
+	}
+
+	g.collectEnvVars(ctx, stt, prefix)
+}
+
+func (g *Env) isTargetPackage(name any) bool {
+	return utils.ParsePackageName(name) == utils.ParsePackageName(g.Source.Package)
+}

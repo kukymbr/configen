@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/kukymbr/configen/internal/generator"
 	"github.com/kukymbr/configen/internal/logger"
@@ -13,6 +14,9 @@ import (
 )
 
 func Run() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	opt := options{}
 	silent := false
 
@@ -40,7 +44,7 @@ func Run() error {
 		logger.SetSilentMode(silent)
 	}
 
-	return cmd.Execute()
+	return cmd.ExecuteContext(ctx)
 }
 
 //nolint:funlen

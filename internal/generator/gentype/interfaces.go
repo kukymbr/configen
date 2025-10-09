@@ -8,8 +8,8 @@ import (
 )
 
 var interfaces struct {
-	textMarshaler *types.Interface
-	stringer      *types.Interface
+	textUnmarshaler *types.Interface
+	stringer        *types.Interface
 }
 
 //nolint:gochecknoinits
@@ -22,7 +22,7 @@ func init() {
 func LoadInterfaces() error {
 	var err error
 
-	interfaces.textMarshaler, err = lookupInterface("encoding", "TextMarshaler")
+	interfaces.textUnmarshaler, err = lookupInterface("encoding", "TextUnmarshaler")
 	if err != nil {
 		return err
 	}
@@ -35,8 +35,8 @@ func LoadInterfaces() error {
 	return nil
 }
 
-func IsTextMarshaler(t types.Type) bool {
-	return implements(t, interfaces.textMarshaler)
+func IsTextUnmarshaler(t types.Type) bool {
+	return implements(t, interfaces.textUnmarshaler)
 }
 
 func IsStringer(t types.Type) bool {

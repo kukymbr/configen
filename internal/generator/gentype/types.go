@@ -56,3 +56,38 @@ type OutputOptions struct {
 }
 
 type OutputFiles [][]byte
+
+type Nullable[T any] struct {
+	value *T
+}
+
+func NewNullable[T any](value ...T) Nullable[T] {
+	v := Nullable[T]{}
+
+	if len(value) > 0 {
+		v.Set(value[0])
+	}
+
+	return v
+}
+
+func (v *Nullable[T]) IsSet() bool {
+	return v.value != nil
+}
+
+func (v *Nullable[T]) Value() T {
+	var empty T
+	if v.value == nil {
+		return empty
+	}
+
+	return *v.value
+}
+
+func (v *Nullable[T]) Set(value T) {
+	v.value = &value
+}
+
+func (v *Nullable[T]) Unset() {
+	v.value = nil
+}

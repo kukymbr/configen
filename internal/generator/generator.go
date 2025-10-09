@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/types"
 
+	"github.com/kukymbr/configen/internal/generator/adapter/env"
 	"github.com/kukymbr/configen/internal/generator/adapter/gogetter"
 	"github.com/kukymbr/configen/internal/generator/adapter/yaml"
 	"github.com/kukymbr/configen/internal/generator/gentype"
@@ -50,8 +51,12 @@ func (g *Generator) Generate(ctx context.Context) error {
 			},
 			out: g.opt.YAML,
 		},
-		// TODO
-		//{adapter: generateEnv, out: g.opt.Env},
+		{
+			adapter: func(out gentype.OutputOptions) gentype.Adapter {
+				return env.New(src, out)
+			},
+			out: g.opt.Env,
+		},
 		{
 			adapter: func(out gentype.OutputOptions) gentype.Adapter {
 				return gogetter.New(src, out)
