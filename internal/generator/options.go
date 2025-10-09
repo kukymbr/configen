@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
-	"github.com/kukymbr/configen/internal/utils"
+	"github.com/kukymbr/configen/internal/generator/utils"
 )
 
 const (
@@ -43,7 +43,7 @@ func prepareOptions(opt *Options) error {
 		return fmt.Errorf("struct name is required")
 	}
 
-	if err := utils.ValidateIdentifier(opt.StructName); err != nil {
+	if err := ValidateIdentifier(opt.StructName); err != nil {
 		return err
 	}
 

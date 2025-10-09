@@ -9,8 +9,8 @@ import (
 	"go/types"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
+	"github.com/kukymbr/configen/internal/generator/utils"
 	"github.com/kukymbr/configen/internal/logger"
-	"github.com/kukymbr/configen/internal/utils"
 	"github.com/kukymbr/configen/internal/version"
 	"golang.org/x/tools/go/packages"
 )

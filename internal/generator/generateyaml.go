@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
+	"github.com/kukymbr/configen/internal/generator/utils"
 	"github.com/kukymbr/configen/internal/logger"
-	"github.com/kukymbr/configen/internal/utils"
 	"golang.org/x/tools/go/packages"
 	"gopkg.in/yaml.v3"
 )

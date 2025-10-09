@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
+	"github.com/kukymbr/configen/internal/generator/utils"
 	"github.com/kukymbr/configen/internal/logger"
-	"github.com/kukymbr/configen/internal/utils"
 )
 
 func generateEnv(src *gentype.SourceStruct, out gentype.OutputOptions) error {
