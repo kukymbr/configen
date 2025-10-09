@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"os"
+
+	"github.com/kukymbr/configen/internal/logger"
 )
 
 const filesMode os.FileMode = 0644
@@ -11,6 +13,8 @@ func WriteFile(content []byte, target string) error {
 	if err := os.WriteFile(target, content, filesMode); err != nil {
 		return fmt.Errorf("failed to write file %s: %w", target, err)
 	}
+
+	logger.Successf("Generated %s file", target)
 
 	return nil
 }

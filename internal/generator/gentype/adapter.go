@@ -6,7 +6,7 @@ import (
 )
 
 type Adapter interface {
-	Generate(ctx context.Context) error
+	Generate(ctx context.Context) (OutputFiles, error)
 }
 
 type GenericAdapter struct {

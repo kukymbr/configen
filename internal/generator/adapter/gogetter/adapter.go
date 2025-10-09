@@ -6,8 +6,6 @@ import (
 	"go/format"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
-	"github.com/kukymbr/configen/internal/generator/utils"
-	"github.com/kukymbr/configen/internal/logger"
 	"github.com/kukymbr/configen/internal/version"
 )
 
@@ -30,7 +28,7 @@ func New(sourceStruct gentype.Source, outputOptions gentype.OutputOptions) *GoGe
 	}
 }
 
-func (g *GoGetter) Generate(ctx context.Context) error {
+func (g *GoGetter) Generate(ctx context.Context) (gentype.OutputFiles, error) {
 	if g.OutputOptions.TargetPackageName == "" {
 		g.OutputOptions.TargetPackageName = packageNameFromID(g.Source.Package.ID)
 	}
@@ -48,7 +46,7 @@ func (g *GoGetter) Generate(ctx context.Context) error {
 
 	var buf bytes.Buffer
 	if err := executeTemplate(&buf, tplData); err != nil {
-		return err
+		return nil, err
 	}
 
 	content := buf.Bytes()
@@ -58,11 +56,5 @@ func (g *GoGetter) Generate(ctx context.Context) error {
 		content = formatted
 	}
 
-	if err := utils.WriteFile(content, g.OutputOptions.Path); err != nil {
-		return err
-	}
-
-	logger.Successf("Generated %s file", g.OutputOptions.Path)
-
-	return nil
+	return gentype.OutputFiles{content}, nil
 }

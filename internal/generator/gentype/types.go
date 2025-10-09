@@ -54,3 +54,5 @@ type OutputOptions struct {
 
 	TargetPackageName string
 }
+
+type OutputFiles [][]byte

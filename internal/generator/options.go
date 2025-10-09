@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
-	"github.com/kukymbr/configen/internal/generator/utils"
 )
 
 const (
@@ -81,7 +80,7 @@ func prepareOptions(opt *Options) error {
 		return err
 	}
 
-	if err := utils.ValidateIsDir(opt.SourceDir); err != nil {
+	if err := validateIsDir(opt.SourceDir); err != nil {
 		return err
 	}
 
@@ -91,7 +90,7 @@ func prepareOptions(opt *Options) error {
 func ensureDirs(opts ...gentype.OutputOptions) error {
 	for _, opt := range opts {
 		if dir := filepath.Dir(opt.Path); dir != "" {
-			if err := utils.EnsureDir(dir); err != nil {
+			if err := EnsureDir(dir); err != nil {
 				return err
 			}
 		}
