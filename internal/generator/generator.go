@@ -38,12 +38,17 @@ func (g *Generator) Generate(ctx context.Context) error {
 	}
 
 	generators := []struct {
-		fn  gentype.GeneratorFunc
-		out gentype.OutputOptions
+		adapter func(out gentype.OutputOptions) gentype.Adapter
+		out     gentype.OutputOptions
 	}{
-		{fn: generateYAML, out: g.opt.YAML},
-		{fn: generateEnv, out: g.opt.Env},
-		{fn: gogetter.Generate, out: g.opt.GoGetter},
+		//{adapter: generateYAML, out: g.opt.YAML},
+		//{adapter: generateEnv, out: g.opt.Env},
+		{
+			adapter: func(out gentype.OutputOptions) gentype.Adapter {
+				return gogetter.New(src, out)
+			},
+			out: g.opt.GoGetter,
+		},
 	}
 
 	for _, gen := range generators {
@@ -55,7 +60,10 @@ func (g *Generator) Generate(ctx context.Context) error {
 			return err
 		}
 
-		if err := gen.fn(&src, gen.out); err != nil {
+		adapter := gen.adapter(gen.out)
+
+		// TODO: run in routines
+		if err := adapter.Generate(ctx); err != nil {
 			return err
 		}
 	}
@@ -65,7 +73,7 @@ func (g *Generator) Generate(ctx context.Context) error {
 	return nil
 }
 
-func (g *Generator) loadStruct() (gentype.SourceStruct, error) {
+func (g *Generator) loadStruct() (gentype.Source, error) {
 	conf := &packages.Config{
 		Mode: packages.NeedTypes | packages.NeedTypesInfo | packages.NeedSyntax | packages.NeedFiles,
 		Dir:  g.opt.SourceDir,
@@ -73,39 +81,29 @@ func (g *Generator) loadStruct() (gentype.SourceStruct, error) {
 
 	pkgs, err := packages.Load(conf, ".")
 	if err != nil {
-		return gentype.SourceStruct{}, fmt.Errorf("load package: %w", err)
+		return gentype.Source{}, fmt.Errorf("load package: %w", err)
 	}
 
 	if len(pkgs) == 0 {
-		return gentype.SourceStruct{}, errors.New("no packages found")
+		return gentype.Source{}, errors.New("no packages found")
 	}
 
 	pkg := pkgs[0]
 
 	obj := pkg.Types.Scope().Lookup(g.opt.StructName)
 	if obj == nil {
-		return gentype.SourceStruct{}, errors.New("struct not found: " + g.opt.StructName)
+		return gentype.Source{}, errors.New("struct not found: " + g.opt.StructName)
 	}
 
 	named, ok := obj.Type().(*types.Named)
 	if !ok {
-		return gentype.SourceStruct{}, fmt.Errorf("%q is not a named type", g.opt.StructName)
+		return gentype.Source{}, fmt.Errorf("%q is not a named type", g.opt.StructName)
 	}
 
 	structType, ok := named.Underlying().(*types.Struct)
 	if !ok {
-		return gentype.SourceStruct{}, fmt.Errorf("%q is not a struct", g.opt.StructName)
+		return gentype.Source{}, fmt.Errorf("%q is not a struct", g.opt.StructName)
 	}
 
-	src := gentype.SourceStruct{
-		Package: pkg,
-		Struct:  structType,
-		Named:   named,
-
-		Name:     g.opt.StructName,
-		Doc:      gentype.GetStructDocComment(pkg, g.opt.StructName),
-		Comments: gentype.CollectComments(pkg),
-	}
-
-	return src, nil
+	return gentype.NewSource(pkg, g.opt.StructName, named, structType), nil
 }

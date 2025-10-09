@@ -13,15 +13,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func generateYAML(src *gentype.SourceStruct, out gentype.OutputOptions) error {
-	yamlNode := structToYAMLNode(src.Package, src.Struct, src.Comments, nil, out.Tag)
+func generateYAML(src *gentype.Source, out gentype.OutputOptions) error {
+	yamlNode := structToYAMLNode(src.Package, src.Struct, src.CommentsMap, nil, out.Tag)
 
 	data, err := yaml.Marshal(yamlNode)
 	if err != nil {
 		return fmt.Errorf("marshal YAML nodes: %w", err)
 	}
 
-	doc := gentype.GetDocComment("#", src.Name, src.Doc)
+	doc := gentype.GetDocComment("#", src.RootStructName, src.RootStructDoc)
 
 	data = append([]byte(doc), data...)
 

@@ -43,7 +43,7 @@ func prepareOptions(opt *Options) error {
 		return fmt.Errorf("struct name is required")
 	}
 
-	if err := ValidateIdentifier(opt.StructName); err != nil {
+	if err := validateIdentifier(opt.StructName); err != nil {
 		return err
 	}
 

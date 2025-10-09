@@ -57,7 +57,7 @@ func GetStructDocComment(pkg *packages.Package, structName string) string {
 	return ""
 }
 
-func CollectComments(pkg *packages.Package) map[token.Pos]string {
+func BuildCommentsMap(pkg *packages.Package) map[token.Pos]string {
 	out := map[token.Pos]string{}
 
 	for _, f := range pkg.Syntax {

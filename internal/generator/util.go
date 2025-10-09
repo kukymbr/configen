@@ -8,7 +8,7 @@ import (
 
 var pxIdentifier = regexp.MustCompile(`(?i)^[a-z]+[a-z0-9_]*$`)
 
-func ValidateIdentifier(name string) error {
+func validateIdentifier(name string) error {
 	if len(name) == 0 {
 		return errors.New("identifier cannot be empty")
 	}

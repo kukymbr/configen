@@ -12,12 +12,12 @@ import (
 	"github.com/kukymbr/configen/internal/logger"
 )
 
-func generateEnv(src *gentype.SourceStruct, out gentype.OutputOptions) error {
+func generateEnv(src *gentype.Source, out gentype.OutputOptions) error {
 	var envLines []string
 
-	collectEnvVars(src.Struct, src.Comments, "", &envLines, out.Tag)
+	collectEnvVars(src.Struct, src.CommentsMap, "", &envLines, out.Tag)
 
-	doc := gentype.GetDocComment("#", src.Name, src.Doc)
+	doc := gentype.GetDocComment("#", src.RootStructName, src.RootStructDoc)
 
 	envContent := doc + strings.Join(envLines, "\n") + "\n"
 
