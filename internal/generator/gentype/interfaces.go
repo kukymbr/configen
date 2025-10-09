@@ -1,4 +1,4 @@
-package generator
+package gentype
 
 import (
 	"fmt"
@@ -35,6 +35,14 @@ func LoadInterfaces() error {
 	return nil
 }
 
+func IsTextMarshaler(t types.Type) bool {
+	return implements(t, interfaces.textMarshaler)
+}
+
+func IsStringer(t types.Type) bool {
+	return implements(t, interfaces.stringer)
+}
+
 func lookupInterface(pkg string, name string) (*types.Interface, error) {
 	conf := &packages.Config{
 		Mode: packages.NeedTypes | packages.NeedTypesInfo,
@@ -51,14 +59,6 @@ func lookupInterface(pkg string, name string) (*types.Interface, error) {
 	}
 
 	return nil, fmt.Errorf("failed to find interface %s in %s", name, pkg)
-}
-
-func isTextMarshaler(t types.Type) bool {
-	return implements(t, interfaces.textMarshaler)
-}
-
-func isStringer(t types.Type) bool {
-	return implements(t, interfaces.stringer)
 }
 
 func implements(t types.Type, intf *types.Interface) bool {

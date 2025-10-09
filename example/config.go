@@ -13,6 +13,8 @@ import (
 // Config godoc
 //
 // Main application config.
+//
+//nolint:unused // TODO: skip nolint comments (or comments without space after //)
 type config struct {
 	// App is an application common settings.
 	App appConfig `envPrefix:"APP_" json:"app" yaml:"app"`
@@ -24,6 +26,7 @@ type config struct {
 	API apiConfig `envPrefix:"API_" json:"api" yaml:"api"`
 }
 
+//nolint:unused
 type appConfig struct {
 	// Application environment mode: development|production
 	Env string `env:"ENV" envDefault:"development" json:"env" yaml:"env"`
@@ -35,10 +38,12 @@ type appConfig struct {
 	Domain string `json:"domain" yaml:"domain"`
 }
 
+//nolint:unused
 type loggerConfig struct {
 	Level LogLevel `env:"LEVEL" envDefault:"debug" json:"level" yaml:"level"`
 }
 
+//nolint:unused
 type apiConfig struct {
 	Host       string        `env:"HOST" envDefault:"0.0.0.0" json:"host" yaml:"host"`
 	Port       int           `env:"PORT" envDefault:"8080" json:"port" yaml:"port"`

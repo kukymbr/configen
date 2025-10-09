@@ -12,6 +12,7 @@ import (
 	"github.com/kukymbr/configen/internal/logger"
 )
 
+//nolint:unused
 func generateEnv(src *gentype.Source, out gentype.OutputOptions) error {
 	var envLines []string
 
@@ -30,6 +31,7 @@ func generateEnv(src *gentype.Source, out gentype.OutputOptions) error {
 	return nil
 }
 
+//nolint:unused
 func collectEnvVars(
 	st *types.Struct,
 	comments map[token.Pos]string,
@@ -44,14 +46,14 @@ func collectEnvVars(
 		}
 
 		tag := st.Tag(i)
-		envPrefix := reflect.StructTag(tag).Get(tagEnvPrefix)
+		envPrefix := reflect.StructTag(tag).Get(gentype.TagEnvPrefix)
 
-		envName := parseNameTag(tag, tagName, "")
-		example := parseDefaultValue(tag, valueTagsEnv...)
+		envName := gentype.ParseNameTag(tag, tagName, "")
+		example := gentype.ParseDefaultValue(tag, gentype.ValueTagsEnv()...)
 		comment := comments[field.Pos()]
 		ft := field.Type()
 
-		if stt, ok := underlyingStruct(ft); ok {
+		if stt, ok := gentype.GetUnderlyingStruct(ft); ok {
 			if len(*envs) > 0 && (*envs)[len(*envs)-1] != "" {
 				*envs = append(*envs, "")
 			}
@@ -65,7 +67,7 @@ func collectEnvVars(
 			continue
 		}
 
-		val := defaultValueForType(ft, example)
+		val := gentype.DefaultValueForType(ft, example)
 
 		if comment != "" {
 			*envs = append(*envs, fmt.Sprintf("# %s", comment))

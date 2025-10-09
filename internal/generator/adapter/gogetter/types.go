@@ -8,8 +8,8 @@ type StructInfo struct {
 }
 
 type FieldInfo struct {
-	Name       string // private field name
-	ExportName string // exported getter name
+	Name       string
+	ExportName string
 	TypeName   string
 	Comment    string
 	IsStruct   bool

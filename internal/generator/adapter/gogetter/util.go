@@ -27,6 +27,7 @@ func docComment(st *ast.StructType) string {
 	return ""
 }
 
+//nolint:unused
 func fieldComment(field *ast.Field) string {
 	if field.Doc != nil {
 		return field.Doc.Text()
