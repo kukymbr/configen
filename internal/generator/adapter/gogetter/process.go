@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"go/types"
 
+	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/kukymbr/configen/internal/generator/utils"
 )
 
 func (g *GoGetter) processStruct(ctx context.Context, named *types.Named, st *types.Struct, targetStructName string) {
+	ctx = gentype.ContextIncRecursionDepth(ctx)
+	gentype.ContextMustValidateRecursionDepth(ctx, "Go generator (processStruct)")
+
 	if ctx.Err() != nil {
 		return
 	}

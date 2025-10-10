@@ -14,7 +14,7 @@ import (
 //
 // Main application config.
 //
-//nolint:unused,nolintlint // TODO: skip nolint comments (or comments without space after //)
+//nolint:unused,nolintlint
 type config struct {
 	// App is an application common settings.
 	App appConfig `envPrefix:"APP_" json:"app" yaml:"app"`

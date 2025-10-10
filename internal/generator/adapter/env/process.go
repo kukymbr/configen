@@ -11,6 +11,9 @@ import (
 )
 
 func (g *Env) collectEnvVars(ctx context.Context, st *types.Struct, prefix string) {
+	ctx = gentype.ContextIncRecursionDepth(ctx)
+	gentype.ContextMustValidateRecursionDepth(ctx, "Env generator (collectEnvVars)")
+
 	if ctx.Err() != nil {
 		return
 	}
@@ -89,11 +92,6 @@ func (g *Env) processAnonymousField(ctx context.Context, ft types.Type, prefix s
 	}
 
 	if named == nil {
-		return
-	}
-
-	if !g.isTargetPackage(named) {
-		// TODO: maybe we should let user decide
 		return
 	}
 

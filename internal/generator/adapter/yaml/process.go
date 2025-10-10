@@ -10,6 +10,9 @@ import (
 )
 
 func (g *YAML) structToYAMLNode(ctx context.Context, st *types.Struct) *yaml.Node {
+	ctx = gentype.ContextIncRecursionDepth(ctx)
+	gentype.ContextMustValidateRecursionDepth(ctx, "YAML generator (structToYAMLNode)")
+
 	if ctx.Err() != nil {
 		return nil
 	}
