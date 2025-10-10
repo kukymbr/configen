@@ -7,6 +7,9 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+// ParsePackageName tries to get package name from instance.
+//
+//nolint:cyclop
 func ParsePackageName(pkg any) string {
 	switch p := pkg.(type) {
 	case *types.PkgName:

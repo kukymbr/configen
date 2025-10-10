@@ -33,6 +33,7 @@ type Generator struct {
 	opt Options
 }
 
+//nolint:funlen
 func (g *Generator) Generate(ctx context.Context) error {
 	logger.Debugf("Doing some magic...")
 

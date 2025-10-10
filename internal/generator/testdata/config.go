@@ -35,15 +35,17 @@ type APIConfig struct {
 
 type LogLevel int
 
-func (l *LogLevel) MarshalText() ([]byte, error) {
-	switch *l {
-	case 0:
-		return []byte("debug"), nil
-	case 1:
-		return []byte("info"), nil
-	case 2:
-		return []byte("error"), nil
+func (l *LogLevel) UnmarshalText(text []byte) error {
+	switch string(text) {
+	case "debug":
+		*l = LogLevel(0)
+	case "info":
+		*l = LogLevel(1)
+	case "error":
+		*l = LogLevel(2)
+	default:
+		return errors.New("invalid log level")
 	}
 
-	return []byte(""), errors.New("invalid log level")
+	return nil
 }
