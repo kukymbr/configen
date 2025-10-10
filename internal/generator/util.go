@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 )
 
 const dirsMode os.FileMode = 0755
@@ -12,7 +13,7 @@ const dirsMode os.FileMode = 0755
 var pxIdentifier = regexp.MustCompile(`(?i)^[a-z]+[a-z0-9_]*$`)
 
 func validateIdentifier(name string) error {
-	if len(name) == 0 {
+	if strings.TrimSpace(name) == "" {
 		return errors.New("identifier cannot be empty")
 	}
 

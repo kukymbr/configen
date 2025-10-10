@@ -5,6 +5,7 @@
 
 # App is an application common settings.
 app:
+    instance_id: test
     env: development
     namespace: unknown
     domain: example.com

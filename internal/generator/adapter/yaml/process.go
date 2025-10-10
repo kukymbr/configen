@@ -23,10 +23,6 @@ func (g *YAML) structToYAMLNode(ctx context.Context, st *types.Struct) *yaml.Nod
 		field := st.Field(i)
 		tag := st.Tag(i)
 
-		if !field.Exported() {
-			continue
-		}
-
 		if content := g.processField(ctx, field, tag); content != nil {
 			node.Content = append(node.Content, content...)
 		}
@@ -58,6 +54,10 @@ func (g *YAML) processField(
 
 			return embedded.Content
 		}
+	}
+
+	if !field.Exported() {
+		return nil
 	}
 
 	keyNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: yamlName}

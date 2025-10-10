@@ -26,7 +26,14 @@ type config struct {
 	API apiConfig `envPrefix:"API_" json:"api" yaml:"api"`
 }
 
+type genericAppConfig struct {
+	InstanceID  string `json:"instance_id" yaml:"instance_id" env:"INSTANCE_ID" default:"test"`
+	BaseTraceID int    `json:"base_trace_id" yaml:"base_trace_id"`
+}
+
 type appConfig struct {
+	genericAppConfig
+
 	// Application environment mode: development|production
 	Env string `env:"ENV" envDefault:"development" json:"env" yaml:"env"`
 

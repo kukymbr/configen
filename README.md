@@ -131,6 +131,11 @@ Flags:
 
 Please refer the [CONTRIBUTING.md](CONTRIBUTING.md) doc.
 
+## TODO
+
+- [ ] Fix naming of generated types (`apiConfig` -> `APIConfig`, now is `Apiconfig`)
+- [ ] Check if target struct name equals to source, add some prefix
+
 ## License
 
 [MIT](LICENSE).

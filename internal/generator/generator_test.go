@@ -2,14 +2,20 @@ package generator_test
 
 import (
 	"context"
+	"fmt"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/kukymbr/configen/internal/generator"
 	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/stretchr/testify/suite"
 )
+
+const givenStructName = "Config"
 
 type generatorGenerateTestCase struct {
 	Name                  string
@@ -37,14 +43,18 @@ func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 			Name: "generate all",
 			GetOptFunc: func() generator.Options {
 				return generator.Options{
-					StructName: "Config",
+					StructName: givenStructName,
 					YAML: gentype.OutputOptions{
 						Enable: true,
-						Path:   s.getTargetPath("test1.yaml"),
+						Path:   s.getTargetPath(),
 					},
 					Env: gentype.OutputOptions{
 						Enable: true,
-						Path:   s.getTargetPath("test1.env"),
+						Path:   s.getTargetPath(),
+					},
+					GoGetter: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
 					},
 				}
 			},
@@ -56,6 +66,37 @@ func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 
 				s.assertContent(opt.YAML.Path, "config.yaml")
 				s.assertContent(opt.Env.Path, "config.env")
+				s.assertContent(opt.GoGetter.Path, "config.gen.go")
+			},
+		},
+		{
+			Name: "no generator enabled",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: givenStructName,
+					YAML: gentype.OutputOptions{
+						Enable: false,
+						Path:   s.getTargetPath(),
+					},
+					Env: gentype.OutputOptions{
+						Enable: false,
+						Path:   s.getTargetPath(),
+					},
+					GoGetter: gentype.OutputOptions{
+						Enable: false,
+						Path:   s.getTargetPath(),
+					},
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().NoError(err)
+			},
+			AssertFunc: func(opt generator.Options, err error) {
+				s.Require().NoError(err)
+
+				s.NoFileExists(opt.YAML.Path)
+				s.NoFileExists(opt.Env.Path)
+				s.NoFileExists(opt.GoGetter.Path)
 			},
 		},
 	}
@@ -70,12 +111,124 @@ func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 func (s *GeneratorSuite) TestGenerator_NegativeCases() {
 	tests := []generatorGenerateTestCase{
 		{
-			Name: "required options missing",
+			Name: "empty options given",
 			GetOptFunc: func() generator.Options {
 				return generator.Options{}
 			},
 			AssertConstructorFunc: func(err error) {
 				s.Require().Error(err)
+			},
+		},
+		{
+			Name: "unknown struct given",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: "UnknownStruct",
+					Env: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().NoError(err)
+			},
+			AssertFunc: func(opt generator.Options, err error) {
+				s.Require().Error(err)
+			},
+		},
+		{
+			Name: "invalid struct format",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: "***",
+					GoGetter: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().Error(err)
+			},
+		},
+		{
+			Name: "empty struct name",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: " ",
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().Error(err)
+			},
+		},
+		{
+			Name: "invalid source dir",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: givenStructName,
+					SourceDir:  "testdata/unknown",
+					GoGetter: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().Error(err)
+			},
+		},
+		{
+			Name: "invalid source not a dir",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: givenStructName,
+					SourceDir:  "testdata/config.go",
+					GoGetter: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().Error(err)
+			},
+		},
+		{
+			Name: "context is canceled",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: givenStructName,
+					YAML: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+					Env: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+					GoGetter: gentype.OutputOptions{
+						Enable: true,
+						Path:   s.getTargetPath(),
+					},
+				}
+			},
+			GetContextFunc: func() context.Context {
+				ctx, cancel := context.WithCancel(context.Background())
+				cancel()
+
+				return ctx
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().NoError(err)
+			},
+			AssertFunc: func(opt generator.Options, err error) {
+				s.Require().ErrorIs(err, context.Canceled)
+
+				s.NoFileExists(opt.YAML.Path)
+				s.NoFileExists(opt.Env.Path)
+				s.NoFileExists(opt.GoGetter.Path)
 			},
 		},
 	}
@@ -91,7 +244,10 @@ func (s *GeneratorSuite) runGeneratorGenerateTest(test generatorGenerateTestCase
 	s.T().Helper()
 
 	opt := test.GetOptFunc()
-	opt.SourceDir = "testdata"
+
+	if opt.SourceDir == "" {
+		opt.SourceDir = "testdata"
+	}
 
 	gen, err := generator.New(opt)
 	test.AssertConstructorFunc(err)
@@ -125,9 +281,15 @@ func (s *GeneratorSuite) assertContent(filename string, expectedName string) {
 	s.Require().Equal(string(expected), string(actual))
 }
 
-func (s *GeneratorSuite) getTargetPath(name string) string {
+func (s *GeneratorSuite) getTargetPath() string {
 	s.T().Helper()
 
+	name := fmt.Sprintf(
+		"%s_%d-%d.tmp",
+		strings.ReplaceAll(s.T().Name(), "/", "."),
+		time.Now().UnixNano(),
+		rand.Uint(),
+	)
 	path := filepath.Join("testdata/target", name)
 
 	s.T().Cleanup(func() {

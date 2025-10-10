@@ -22,10 +22,6 @@ func (g *Env) collectEnvVars(ctx context.Context, st *types.Struct, prefix strin
 		field := st.Field(i)
 		tag := st.Tag(i)
 
-		if !field.Exported() {
-			continue
-		}
-
 		g.processField(ctx, field, tag, prefix)
 	}
 }
@@ -43,6 +39,10 @@ func (g *Env) processField(ctx context.Context, field *types.Var, tag string, pr
 	if field.Anonymous() {
 		g.processAnonymousField(ctx, ft, prefix)
 
+		return
+	}
+
+	if !field.Exported() {
 		return
 	}
 

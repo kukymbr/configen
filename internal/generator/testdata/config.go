@@ -16,9 +16,17 @@ type Config struct {
 
 	// API is an API server configuration.
 	API APIConfig `envPrefix:"API_" json:"api" yaml:"api"`
+
+	privateData []byte
+}
+
+type GenericAppConfig struct {
+	InstanceID string `json:"instance_id" yaml:"instance_id" env:"INSTANCE_ID" default:"test"`
 }
 
 type AppConfig struct {
+	GenericAppConfig
+
 	Env       string `env:"ENV" default:"development" json:"env" yaml:"env"`
 	Namespace string `env:"NAMESPACE" default:"unknown" json:"namespace" yaml:"namespace"`
 	Domain    string `env:"DOMAIN" example:"example.com" json:"domain" yaml:"domain"`

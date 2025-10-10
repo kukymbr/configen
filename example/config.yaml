@@ -7,6 +7,8 @@
 
 # App is an application common settings.
 app:
+    instance_id: test
+    base_trace_id: 0
     # Application environment mode: development|production
     env: development
     # Environment namespace (e.g. "dev1")
