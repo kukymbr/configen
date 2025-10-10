@@ -133,8 +133,20 @@ Please refer the [CONTRIBUTING.md](CONTRIBUTING.md) doc.
 
 ## TODO
 
-- [ ] Fix naming of generated types (`apiConfig` -> `APIConfig`, now is `Apiconfig`)
-- [ ] Check if target struct name equals to source, add some prefix
+- Fix naming of generated types (`apiConfig` -> `APIConfig`, now is `Apiconfig`)
+- Check if target struct name equals to source, add some prefix
+- Add empty value check in go generator (for basic types), for example:
+  ```golang
+  func NewAppConfig(dto appConfig) AppConfig {
+    if dto.env == "" {
+        dto.env = "development"
+    }
+   
+    return AppConfig{
+        env: dto.Env,
+    }
+  }
+  ```
 
 ## License
 
