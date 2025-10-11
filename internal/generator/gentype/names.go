@@ -14,6 +14,7 @@ var (
 		"CPU":   {},
 		"CSS":   {},
 		"DNS":   {},
+		"DTO":   {},
 		"EOF":   {},
 		"GUID":  {},
 		"HTML":  {},
