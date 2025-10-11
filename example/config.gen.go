@@ -5,70 +5,70 @@
 package example
 
 import (
-	"time"
-
 	"net/http"
+
+	"time"
 )
 
-type ApiConfig struct {
+type APIConfig struct {
 	host       string
 	port       int
 	secret     string
-	reqTtl     time.Duration
-	respTtl    time.Duration
+	reqTTL     time.Duration
+	respTTL    time.Duration
 	defaultReq *http.Request
 }
 
-func (c ApiConfig) Host() string {
+func (c APIConfig) Host() string {
 	return c.host
 }
 
-func (c ApiConfig) Port() int {
+func (c APIConfig) Port() int {
 	return c.port
 }
 
-func (c ApiConfig) Secret() string {
+func (c APIConfig) Secret() string {
 	return c.secret
 }
 
-func (c ApiConfig) ReqTTL() time.Duration {
-	return c.reqTtl
+func (c APIConfig) ReqTTL() time.Duration {
+	return c.reqTTL
 }
 
-func (c ApiConfig) RespTTL() time.Duration {
-	return c.respTtl
+func (c APIConfig) RespTTL() time.Duration {
+	return c.respTTL
 }
 
-func (c ApiConfig) DefaultReq() *http.Request {
+func (c APIConfig) DefaultReq() *http.Request {
 	return c.defaultReq
 }
 
-// Constructor for ApiConfig.
-func NewApiConfig(dto apiConfig) ApiConfig {
-	return ApiConfig{
+// Constructor for APIConfig.
+func NewAPIConfig(dto apiConfig) APIConfig {
+	return APIConfig{
 		host:       dto.Host,
 		port:       dto.Port,
 		secret:     dto.Secret,
-		reqTtl:     dto.ReqTTL,
-		respTtl:    dto.RespTTL,
+		reqTTL:     dto.ReqTTL,
+		respTTL:    dto.RespTTL,
 		defaultReq: dto.DefaultReq,
 	}
 }
 
 type AppConfig struct {
-	instanceId  string
-	baseTraceId int
+	instanceID  string
+	baseTraceID int
 	env         string
 	namespace   string
 	domain      string
 }
 
 func (c AppConfig) InstanceID() string {
-	return c.instanceId
+	return c.instanceID
 }
 
 func (c AppConfig) BaseTraceID() int {
-	return c.baseTraceId
+	return c.baseTraceID
 }
 
 // Application environment mode: development|production
@@ -89,8 +89,8 @@ func (c AppConfig) Domain() string {
 // Constructor for AppConfig.
 func NewAppConfig(dto appConfig) AppConfig {
 	return AppConfig{
-		instanceId:  dto.InstanceID,
-		baseTraceId: dto.BaseTraceID,
+		instanceID:  dto.InstanceID,
+		baseTraceID: dto.BaseTraceID,
 		env:         dto.Env,
 		namespace:   dto.Namespace,
 		domain:      dto.Domain,
@@ -100,7 +100,7 @@ func NewAppConfig(dto appConfig) AppConfig {
 type Config struct {
 	app    AppConfig
 	logger LoggerConfig
-	api    ApiConfig
+	api    APIConfig
 }
 
 // App is an application common settings.
@@ -114,7 +114,7 @@ func (c Config) Logger() LoggerConfig {
 }
 
 // API is an API server configuration.
-func (c Config) API() ApiConfig {
+func (c Config) API() APIConfig {
 	return c.api
 }
 
@@ -123,42 +123,48 @@ func NewConfig(dto config) Config {
 	return Config{
 		app:    NewAppConfig(dto.App),
 		logger: NewLoggerConfig(dto.Logger),
-		api:    NewApiConfig(dto.API),
+		api:    NewAPIConfig(dto.API),
 	}
 }
 
 type GenericAppConfig struct {
-	instanceId  string
-	baseTraceId int
+	instanceID  string
+	baseTraceID int
 }
 
 func (c GenericAppConfig) InstanceID() string {
-	return c.instanceId
+	return c.instanceID
 }
 
 func (c GenericAppConfig) BaseTraceID() int {
-	return c.baseTraceId
+	return c.baseTraceID
 }
 
 // Constructor for GenericAppConfig.
 func NewGenericAppConfig(dto genericAppConfig) GenericAppConfig {
 	return GenericAppConfig{
-		instanceId:  dto.InstanceID,
-		baseTraceId: dto.BaseTraceID,
+		instanceID:  dto.InstanceID,
+		baseTraceID: dto.BaseTraceID,
 	}
 }
 
 type LoggerConfig struct {
-	level LogLevel
+	level         LogLevel
+	defaultFields any
 }
 
 func (c LoggerConfig) Level() LogLevel {
 	return c.level
 }
 
+func (c LoggerConfig) DefaultFields() any {
+	return c.defaultFields
+}
+
 // Constructor for LoggerConfig.
 func NewLoggerConfig(dto loggerConfig) LoggerConfig {
 	return LoggerConfig{
-		level: dto.Level,
+		level:         dto.Level,
+		defaultFields: dto.DefaultFields,
 	}
 }

@@ -18,6 +18,9 @@ app:
 # Logger is a logging setup values.
 logger:
     level: debug
+    default_fields:
+        trace_id: ""
+        values: {}
 # API is an API server configuration.
 api:
     host: 0.0.0.0

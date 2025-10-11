@@ -126,3 +126,16 @@ func DefaultValueForType(t types.Type, value string) string {
 
 	return ""
 }
+
+func ToPrivateName(name string) string {
+	return ToLowerCamel(name)
+}
+
+func ToPublicName(name string) string {
+	public := ToCamel(name)
+	if name != public {
+		return public
+	}
+
+	return public + "Provider"
+}

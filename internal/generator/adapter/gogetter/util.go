@@ -3,8 +3,6 @@ package gogetter
 import (
 	"go/ast"
 	"strings"
-
-	"github.com/iancoleman/strcase"
 )
 
 func packageNameFromID(id string) string {
@@ -25,12 +23,4 @@ func docComment(st *ast.StructType) string {
 	}
 
 	return ""
-}
-
-func toPrivateName(s string) string {
-	return strcase.ToLowerCamel(s)
-}
-
-func toPublicName(name string) string {
-	return strcase.ToCamel(name)
 }

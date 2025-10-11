@@ -20,7 +20,7 @@ func (g *GoGetter) processStruct(ctx context.Context, named *types.Named, st *ty
 	syntaxMap := g.Source.SyntaxMap
 
 	if targetStructName == "" {
-		targetStructName = toPublicName(named.Obj().Name())
+		targetStructName = gentype.ToPublicName(named.Obj().Name())
 	}
 
 	if _, exists := g.collectedStructs[targetStructName]; exists {
@@ -67,30 +67,35 @@ func (g *GoGetter) processField(
 
 	typeName := g.formatTypeName(ft)
 	isStruct := false
+	processed := false
 
 	if nt, ok := ft.(*types.Named); ok {
 		if _, ok := nt.Underlying().(*types.Struct); ok && g.isTargetPackage(nt.Obj().Pkg()) {
 			isStruct = true
-			typeName = toPublicName(nt.Obj().Name())
+			typeName = gentype.ToPublicName(nt.Obj().Name())
 
 			g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), typeName)
+
+			processed = true
 		}
 	}
 
-	if pt, ok := ft.(*types.Pointer); ok {
+	if pt, ok := ft.(*types.Pointer); ok && !processed {
 		if nt, ok := pt.Elem().(*types.Named); ok {
 			if _, ok := nt.Underlying().(*types.Struct); ok && g.isTargetPackage(nt.Obj().Pkg()) {
 				isStruct = true
-				pubName := toPublicName(nt.Obj().Name())
+				pubName := gentype.ToPublicName(nt.Obj().Name())
 				typeName = "*" + pubName
 
 				g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), pubName)
+
+				processed = true
 			}
 		}
 	}
 
 	return []FieldInfo{{
-		Name:       toPrivateName(field.Name()),
+		Name:       gentype.ToPrivateName(field.Name()),
 		ExportName: field.Name(),
 		TypeName:   typeName,
 		Comment:    g.Source.GetStructFieldComment(sourceStructName, fieldIndex),
@@ -108,7 +113,7 @@ func (g *GoGetter) processAnonymousField(
 		if _, ok := nt.Underlying().(*types.Struct); ok {
 			g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), "")
 
-			embedded := g.collectedStructs[toPublicName(nt.Obj().Name())]
+			embedded := g.collectedStructs[gentype.ToPublicName(nt.Obj().Name())]
 
 			return embedded.Fields
 		}
@@ -124,7 +129,7 @@ func (g *GoGetter) processAnonymousField(
 			"",
 		)
 
-		embedded := g.collectedStructs[toPublicName(anonName)]
+		embedded := g.collectedStructs[gentype.ToPublicName(anonName)]
 
 		return embedded.Fields
 	}

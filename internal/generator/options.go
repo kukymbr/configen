@@ -9,10 +9,9 @@ import (
 )
 
 const (
-	DefaultSourceDir          = "."
-	DefaultEnvTag             = "env"
-	DefaultYAMLTag            = "yaml"
-	DefaultGoTargetStructName = "ConfigProvider"
+	DefaultSourceDir = "."
+	DefaultEnvTag    = "env"
+	DefaultYAMLTag   = "yaml"
 )
 
 type Options struct {
@@ -73,7 +72,7 @@ func prepareOptions(opt *Options) error {
 	}
 
 	if opt.GoGetter.TargetStructName == "" {
-		opt.GoGetter.TargetStructName = DefaultGoTargetStructName
+		opt.GoGetter.TargetStructName = gentype.ToPublicName(opt.StructName)
 	}
 
 	if err := ensureDirs(opt.YAML, opt.Env, opt.GoGetter); err != nil {

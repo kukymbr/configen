@@ -46,6 +46,11 @@ type appConfig struct {
 
 type loggerConfig struct {
 	Level LogLevel `env:"LEVEL" envDefault:"debug" json:"level" yaml:"level"`
+
+	DefaultFields struct {
+		TraceID string         `env:"TRACE_ID" json:"trace_id" yaml:"trace_id"`
+		Values  map[string]any `env:"VALUES" json:"values" yaml:"values"`
+	} `json:"default_fields" yaml:"default_fields"`
 }
 
 type apiConfig struct {

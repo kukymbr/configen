@@ -15,7 +15,12 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-const givenStructName = "Config"
+const (
+	// Using the example config file make changes once in example file
+	// and validate it too into the tests.
+	givenSourceDir  = "../../example"
+	givenStructName = "config"
+)
 
 type generatorGenerateTestCase struct {
 	Name                  string
@@ -246,7 +251,7 @@ func (s *GeneratorSuite) runGeneratorGenerateTest(test generatorGenerateTestCase
 	opt := test.GetOptFunc()
 
 	if opt.SourceDir == "" {
-		opt.SourceDir = "testdata"
+		opt.SourceDir = givenSourceDir
 	}
 
 	gen, err := generator.New(opt)

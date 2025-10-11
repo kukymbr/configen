@@ -89,8 +89,8 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 
 	cmd.Flags().StringVar(
 		&opt.GoTargetStructName,
-		"go-struct", generator.DefaultGoTargetStructName,
-		"Target struct name",
+		"go-struct", "",
+		"Target struct name (default is exported variant of incoming struct name)",
 	)
 
 	cmd.Flags().StringVar(
