@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"go/token"
 	"go/types"
+	"slices"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
-	"github.com/kukymbr/configen/internal/generator/utils"
 )
 
 func (g *GoGetter) processStruct(
@@ -171,6 +171,8 @@ func (g *GoGetter) getImports() []string {
 		imports = append(imports, imp)
 	}
 
+	slices.Sort(imports)
+
 	return imports
 }
 
@@ -216,7 +218,7 @@ func (g *GoGetter) registerImport(imp string) {
 }
 
 func (g *GoGetter) isTargetPackage(pkg any) bool {
-	pkgName := utils.ParsePackageName(pkg)
+	pkgName := gentype.ParsePackageName(pkg)
 
 	return pkgName == g.OutputOptions.TargetPackageName
 }

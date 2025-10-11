@@ -5,9 +5,9 @@
 package {{ .PackageName }}
 
 import(
-{{ range .Imports }}
+{{- range .Imports }}
     "{{ . }}"
-{{ end }}
+{{- end }}
 )
 
 {{ range $name, $st := .Structs }}

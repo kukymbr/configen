@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
-	"github.com/kukymbr/configen/internal/generator/utils"
 )
 
 func (g *Env) collectEnvVars(ctx context.Context, st *types.Struct, prefix string) {
@@ -99,5 +98,5 @@ func (g *Env) processAnonymousField(ctx context.Context, ft types.Type, prefix s
 }
 
 func (g *Env) isTargetPackage(name any) bool {
-	return utils.ParsePackageName(name) == utils.ParsePackageName(g.Source.Package)
+	return gentype.ParsePackageName(name) == gentype.ParsePackageName(g.Source.Package)
 }

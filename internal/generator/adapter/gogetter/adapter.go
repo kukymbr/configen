@@ -6,6 +6,7 @@ import (
 	"go/format"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
+	"github.com/kukymbr/configen/internal/logger"
 	"github.com/kukymbr/configen/internal/version"
 )
 
@@ -54,6 +55,8 @@ func (g *GoGetter) Generate(ctx context.Context) (gentype.OutputFiles, error) {
 	formatted, err := format.Source(content)
 	if err == nil {
 		content = formatted
+	} else {
+		logger.Warningf("Failed to format generated code: %s", err.Error())
 	}
 
 	return gentype.OutputFiles{content}, nil

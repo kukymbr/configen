@@ -6,9 +6,14 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/kukymbr/configen/internal/logger"
 )
 
-const dirsMode os.FileMode = 0755
+const (
+	dirsMode  os.FileMode = 0755
+	filesMode os.FileMode = 0644
+)
 
 var pxIdentifier = regexp.MustCompile(`(?i)^[a-z]+[a-z0-9_]*$`)
 
@@ -43,6 +48,16 @@ func EnsureDir(path string) error {
 	if err := os.MkdirAll(path, dirsMode); err != nil {
 		return fmt.Errorf("dir '%s' does not exist and cannot be created: %w", path, err)
 	}
+
+	return nil
+}
+
+func writeFile(content []byte, target string) error {
+	if err := os.WriteFile(target, content, filesMode); err != nil {
+		return fmt.Errorf("failed to write file %s: %w", target, err)
+	}
+
+	logger.Successf("Generated %s file", target)
 
 	return nil
 }

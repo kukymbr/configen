@@ -6,7 +6,6 @@ package example
 
 import (
 	"net/http"
-
 	"time"
 )
 

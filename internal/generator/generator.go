@@ -10,7 +10,6 @@ import (
 	"github.com/kukymbr/configen/internal/generator/adapter/gogetter"
 	"github.com/kukymbr/configen/internal/generator/adapter/yaml"
 	"github.com/kukymbr/configen/internal/generator/gentype"
-	"github.com/kukymbr/configen/internal/generator/utils"
 	"github.com/kukymbr/configen/internal/logger"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/packages"
@@ -86,7 +85,7 @@ func (g *Generator) Generate(ctx context.Context) error {
 			}
 
 			for _, content := range files {
-				if err := utils.WriteFile(content, gen.out.Path); err != nil {
+				if err := writeFile(content, gen.out.Path); err != nil {
 					return err
 				}
 			}
