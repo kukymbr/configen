@@ -3,18 +3,25 @@ package gogetter
 import (
 	"context"
 	"fmt"
+	"go/token"
 	"go/types"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
 	"github.com/kukymbr/configen/internal/generator/utils"
 )
 
-func (g *GoGetter) processStruct(ctx context.Context, named *types.Named, st *types.Struct, targetStructName string) {
+func (g *GoGetter) processStruct(
+	ctx context.Context,
+	named *types.Named,
+	st *types.Struct,
+	targetStructName string,
+	isAnon bool,
+) *StructInfo {
 	ctx = gentype.ContextIncRecursionDepth(ctx)
 	gentype.ContextMustValidateRecursionDepth(ctx, "Go generator (processStruct)")
 
 	if ctx.Err() != nil {
-		return
+		return nil
 	}
 
 	syntaxMap := g.Source.SyntaxMap
@@ -23,13 +30,14 @@ func (g *GoGetter) processStruct(ctx context.Context, named *types.Named, st *ty
 		targetStructName = gentype.ToPublicName(named.Obj().Name())
 	}
 
-	if _, exists := g.collectedStructs[targetStructName]; exists {
-		return
+	if info, exists := g.collectedStructs[targetStructName]; exists {
+		return info
 	}
 
 	info := &StructInfo{
 		Name:             targetStructName,
 		SourceStructName: named.Obj().Name(),
+		IsAnonymous:      isAnon,
 	}
 
 	if syn, ok := syntaxMap[named.Obj().Name()]; ok {
@@ -46,8 +54,11 @@ func (g *GoGetter) processStruct(ctx context.Context, named *types.Named, st *ty
 	}
 
 	g.collectedStructs[targetStructName] = info
+
+	return info
 }
 
+//nolint:cyclop
 func (g *GoGetter) processField(
 	ctx context.Context,
 	field *types.Var,
@@ -58,24 +69,22 @@ func (g *GoGetter) processField(
 ) []FieldInfo {
 	// Handle anonymous embedded structs by flattening their fields
 	if field.Anonymous() {
-		return g.processAnonymousField(ctx, field.Type(), targetStructName, fieldIndex)
+		return g.processAnonymousField(ctx, field, targetStructName)
 	}
 
 	if !field.Exported() {
 		return nil
 	}
 
+	var structInfo *StructInfo
+
 	typeName := g.formatTypeName(ft)
-	isStruct := false
 	processed := false
 
 	if nt, ok := ft.(*types.Named); ok {
 		if _, ok := nt.Underlying().(*types.Struct); ok && g.isTargetPackage(nt.Obj().Pkg()) {
-			isStruct = true
 			typeName = gentype.ToPublicName(nt.Obj().Name())
-
-			g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), typeName)
-
+			structInfo = g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), typeName, false)
 			processed = true
 		}
 	}
@@ -83,15 +92,22 @@ func (g *GoGetter) processField(
 	if pt, ok := ft.(*types.Pointer); ok && !processed {
 		if nt, ok := pt.Elem().(*types.Named); ok {
 			if _, ok := nt.Underlying().(*types.Struct); ok && g.isTargetPackage(nt.Obj().Pkg()) {
-				isStruct = true
 				pubName := gentype.ToPublicName(nt.Obj().Name())
 				typeName = "*" + pubName
 
-				g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), pubName)
-
+				structInfo = g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), pubName, false)
 				processed = true
 			}
 		}
+	}
+
+	if stt, ok := ft.(*types.Struct); ok && !processed {
+		structInfo = g.processStruct(
+			ctx,
+			g.anonStructToNamed(stt, targetStructName, field),
+			stt, "",
+			true,
+		)
 	}
 
 	return []FieldInfo{{
@@ -99,19 +115,21 @@ func (g *GoGetter) processField(
 		ExportName: field.Name(),
 		TypeName:   typeName,
 		Comment:    g.Source.GetStructFieldComment(sourceStructName, fieldIndex),
-		IsStruct:   isStruct,
+		IsStruct:   structInfo != nil,
+		StructInfo: structInfo,
 	}}
 }
 
 func (g *GoGetter) processAnonymousField(
 	ctx context.Context,
-	ft types.Type,
+	field *types.Var,
 	targetStructName string,
-	fieldIndex int,
 ) []FieldInfo {
+	ft := field.Type()
+
 	if nt, ok := ft.(*types.Named); ok {
 		if _, ok := nt.Underlying().(*types.Struct); ok {
-			g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), "")
+			g.processStruct(ctx, nt, nt.Underlying().(*types.Struct), "", true)
 
 			embedded := g.collectedStructs[gentype.ToPublicName(nt.Obj().Name())]
 
@@ -120,21 +138,30 @@ func (g *GoGetter) processAnonymousField(
 	}
 
 	if stt, ok := ft.(*types.Struct); ok {
-		anonName := fmt.Sprintf("%s_anon_%d", targetStructName, fieldIndex)
+		named := g.anonStructToNamed(stt, targetStructName, field)
 
 		g.processStruct(
 			ctx,
-			types.NewNamed(types.NewTypeName(0, nil, anonName, nil), stt, nil),
+			g.anonStructToNamed(stt, targetStructName, field),
 			stt,
 			"",
+			true,
 		)
 
-		embedded := g.collectedStructs[gentype.ToPublicName(anonName)]
+		embedded := g.collectedStructs[gentype.ToPublicName(named.Obj().Name())]
 
 		return embedded.Fields
 	}
 
 	return nil
+}
+
+func (g *GoGetter) anonStructToNamed(st *types.Struct, targetStructName string, field *types.Var) *types.Named {
+	anonName := fmt.Sprintf("%s%s", targetStructName, gentype.ToCamel(field.Name()))
+
+	return types.NewNamed(types.NewTypeName(
+		token.NoPos, nil, anonName, nil,
+	), st, nil)
 }
 
 func (g *GoGetter) getImports() []string {

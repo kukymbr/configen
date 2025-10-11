@@ -5,9 +5,9 @@
 package example
 
 import (
-	"net/http"
-
 	"time"
+
+	"net/http"
 )
 
 type APIConfig struct {
@@ -140,17 +140,12 @@ func (c GenericAppConfig) BaseTraceID() int {
 	return c.baseTraceID
 }
 
-// Constructor for GenericAppConfig.
-func NewGenericAppConfig(dto genericAppConfig) GenericAppConfig {
-	return GenericAppConfig{
-		instanceID:  dto.InstanceID,
-		baseTraceID: dto.BaseTraceID,
-	}
-}
-
 type LoggerConfig struct {
 	level         LogLevel
-	defaultFields any
+	defaultFields struct {
+		traceID string
+		values  map[string]any
+	}
 }
 
 func (c LoggerConfig) Level() LogLevel {
@@ -164,7 +159,26 @@ func (c LoggerConfig) DefaultFields() any {
 // Constructor for LoggerConfig.
 func NewLoggerConfig(dto loggerConfig) LoggerConfig {
 	return LoggerConfig{
-		level:         dto.Level,
-		defaultFields: dto.DefaultFields,
+		level: dto.Level,
+		defaultFields: struct {
+			traceID string
+			values  map[string]any
+		}{
+			traceID: dto.DefaultFields.TraceID,
+			values:  dto.DefaultFields.Values,
+		},
 	}
+}
+
+type LoggerConfigDefaultFieldsProvider struct {
+	traceID string
+	values  map[string]any
+}
+
+func (c LoggerConfigDefaultFieldsProvider) TraceID() string {
+	return c.traceID
+}
+
+func (c LoggerConfigDefaultFieldsProvider) Values() map[string]any {
+	return c.values
 }

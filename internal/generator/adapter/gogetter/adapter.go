@@ -33,7 +33,7 @@ func (g *GoGetter) Generate(ctx context.Context) (gentype.OutputFiles, error) {
 		g.OutputOptions.TargetPackageName = packageNameFromID(g.Source.Package.ID)
 	}
 
-	g.processStruct(ctx, g.Source.Named, g.Source.Struct, g.OutputOptions.TargetStructName)
+	g.processStruct(ctx, g.Source.Named, g.Source.Struct, g.OutputOptions.TargetStructName, false)
 
 	tplData := tplData{
 		Structs:          g.collectedStructs,

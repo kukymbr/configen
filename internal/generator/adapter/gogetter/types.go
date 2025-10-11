@@ -4,6 +4,7 @@ type StructInfo struct {
 	Name             string
 	SourceStructName string
 	Doc              string
+	IsAnonymous      bool
 	Fields           []FieldInfo
 }
 
@@ -13,4 +14,5 @@ type FieldInfo struct {
 	TypeName   string
 	Comment    string
 	IsStruct   bool
+	StructInfo *StructInfo
 }

@@ -13,7 +13,15 @@ import(
 {{ range $name, $st := .Structs }}
 type {{ $st.Name }} struct {
 {{- range $st.Fields }}
-	{{ .Name }} {{ .TypeName }}
+    {{- if and .IsStruct .StructInfo.IsAnonymous }}
+        {{ .Name }} struct {
+            {{- range .StructInfo.Fields }}
+                {{ .Name }} {{ .TypeName }}
+            {{- end }}
+        }
+    {{- else }}
+	    {{ .Name }} {{ .TypeName }}
+	{{- end }}
 {{- end }}
 }
 
@@ -23,12 +31,30 @@ type {{ $st.Name }} struct {
 }
 {{ end }}
 
+{{ if not $st.IsAnonymous }}
 // Constructor for {{ $st.Name }}.
 func New{{ $st.Name }}(dto {{ $st.SourceStructName }}) {{ $st.Name }} {
 	return {{ $st.Name }}{
-		{{- range $st.Fields }}
-		{{ .Name }}: {{ if .IsStruct }}New{{ .TypeName }}(dto.{{ .ExportName }}){{ else }}dto.{{ .ExportName }}{{ end }},
+		{{- range $fieldIndex, $field := $st.Fields }}
+            {{- if $field.IsStruct -}}
+                {{- if not $field.StructInfo.IsAnonymous }}
+                    {{ $field.Name }}: New{{ $field.TypeName }}(dto.{{ $field.ExportName }}),
+                {{- else }}
+                    {{ $field.Name }}: struct {
+                        {{- range .StructInfo.Fields }}
+                            {{ .Name }} {{ .TypeName }}
+                        {{- end }}
+                    }{
+                        {{- range .StructInfo.Fields }}
+                            {{ .Name }}: dto.{{ $field.ExportName }}.{{ .ExportName }},
+                        {{- end }}
+                    },
+                {{- end }}
+            {{- else }}
+                {{ $field.Name }}: dto.{{ $field.ExportName }},
+            {{- end }}
 		{{- end }}
 	}
 }
+{{ end }}
 {{ end }}
