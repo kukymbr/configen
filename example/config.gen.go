@@ -16,6 +16,8 @@ type APIConfig struct {
 	reqTTL     time.Duration
 	respTTL    time.Duration
 	defaultReq *http.Request
+
+	origin any
 }
 
 func (c APIConfig) Host() string {
@@ -51,6 +53,8 @@ func NewAPIConfig(dto apiConfig) APIConfig {
 		reqTTL:     dto.ReqTTL,
 		respTTL:    dto.RespTTL,
 		defaultReq: dto.DefaultReq,
+
+		origin: dto,
 	}
 }
 
@@ -60,6 +64,8 @@ type AppConfig struct {
 	env         string
 	namespace   string
 	domain      string
+
+	origin any
 }
 
 func (c AppConfig) InstanceID() string {
@@ -93,6 +99,8 @@ func NewAppConfig(dto appConfig) AppConfig {
 		env:         dto.Env,
 		namespace:   dto.Namespace,
 		domain:      dto.Domain,
+
+		origin: dto,
 	}
 }
 
@@ -100,6 +108,8 @@ type Config struct {
 	app    AppConfig
 	logger LoggerConfig
 	api    APIConfig
+
+	origin any
 }
 
 // App is an application common settings.
@@ -123,12 +133,16 @@ func NewConfig(dto config) Config {
 		app:    NewAppConfig(dto.App),
 		logger: NewLoggerConfig(dto.Logger),
 		api:    NewAPIConfig(dto.API),
+
+		origin: dto,
 	}
 }
 
 type GenericAppConfig struct {
 	instanceID  string
 	baseTraceID int
+
+	origin any
 }
 
 func (c GenericAppConfig) InstanceID() string {
@@ -145,6 +159,8 @@ type LoggerConfig struct {
 		traceID string
 		values  map[string]any
 	}
+
+	origin any
 }
 
 func (c LoggerConfig) Level() LogLevel {
@@ -169,12 +185,16 @@ func NewLoggerConfig(dto loggerConfig) LoggerConfig {
 			traceID: dto.DefaultFields.TraceID,
 			values:  dto.DefaultFields.Values,
 		},
+
+		origin: dto,
 	}
 }
 
 type LoggerConfigDefaultFieldsProvider struct {
 	traceID string
 	values  map[string]any
+
+	origin any
 }
 
 func (c LoggerConfigDefaultFieldsProvider) TraceID() string {

@@ -23,6 +23,8 @@ type {{ $st.Name }} struct {
 	    {{ .Name }} {{ .TypeName }}
 	{{- end }}
 {{- end }}
+
+    origin any
 }
 
 {{ range $fieldIndex, $field := $st.Fields }}
@@ -62,6 +64,8 @@ func New{{ $st.Name }}(dto {{ $st.SourceStructName }}) {{ $st.Name }} {
                 {{ $field.Name }}: dto.{{ $field.ExportName }},
             {{- end }}
 		{{- end }}
+
+		origin: dto,
 	}
 }
 {{ end }}
