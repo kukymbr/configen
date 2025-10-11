@@ -25,9 +25,17 @@ type {{ $st.Name }} struct {
 {{- end }}
 }
 
-{{ range $st.Fields }}
-{{ if .Comment }}// {{ .Comment }}{{ end }}func (c {{ $st.Name }}) {{ .ExportName }}() {{ .TypeName }} {
-	return c.{{ .Name }}
+{{ range $fieldIndex, $field := $st.Fields }}
+{{ if $field.Comment -}}// {{- $field.Comment -}}{{- end -}}{{- if not (and $field.IsStruct $field.StructInfo.IsAnonymous) -}}
+    func (c {{ $st.Name }}) {{ $field.ExportName }}() {{ $field.TypeName }} {
+{{- else }}
+    func (c {{ $st.Name }}) {{ $field.ExportName }}() struct {
+    {{- range $field.StructInfo.Fields }}
+        {{ .Name }} {{ .TypeName }}
+    {{- end }}
+    } {
+{{- end }}
+	return c.{{ $field.Name }}
 }
 {{ end }}
 

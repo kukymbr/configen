@@ -91,3 +91,20 @@ func (l *LogLevel) UnmarshalText(text []byte) error {
 
 	return nil
 }
+
+type settings struct {
+	One struct {
+		OneOne string `json:"one_one" yaml:"one_one"`
+		OneTwo string `json:"one_two" yaml:"one_two"`
+
+		OneThree struct {
+			OneFour string `json:"one_four" yaml:"one_four"`
+			OneFive string `json:"one_five" yaml:"one_five"`
+		}
+	}
+
+	Two struct {
+		TwoOne string `json:"two_one" yaml:"two_one"`
+		TwoTwo string `json:"two_two" yaml:"two_two"`
+	}
+}

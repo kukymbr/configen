@@ -5,9 +5,9 @@
 package example
 
 import (
-	"time"
-
 	"net/http"
+
+	"time"
 )
 
 type APIConfig struct {
@@ -152,7 +152,10 @@ func (c LoggerConfig) Level() LogLevel {
 	return c.level
 }
 
-func (c LoggerConfig) DefaultFields() any {
+func (c LoggerConfig) DefaultFields() struct {
+	traceID string
+	values  map[string]any
+} {
 	return c.defaultFields
 }
 
