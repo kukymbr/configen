@@ -15,6 +15,8 @@ app:
     namespace: unknown
     # Top-level domain for the cookies
     domain: ""
+    # ExternalArg is an example of custom type handling.
+    ext_arg: ""
 # Logger is a logging setup values.
 logger:
     level: debug
@@ -28,3 +30,5 @@ api:
     secret: secret
     req_ttl: 1h
     resp_ttl: 1h
+# ExternalArg is an example of custom type handling.
+ext_arg: ""

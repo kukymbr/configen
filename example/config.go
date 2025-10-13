@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"time"
+
+	"github.com/kukymbr/configen/example/exampletype"
 )
 
 // Added as an example usage.
@@ -24,6 +26,9 @@ type config struct {
 
 	// API is an API server configuration.
 	API apiConfig `envPrefix:"API_" json:"api" yaml:"api"`
+
+	// ExternalArg is an example of custom type handling.
+	ExternalArg exampletype.KeyVal `env:"EXT_ARGS" json:"ext_arg" yaml:"ext_arg"`
 }
 
 type genericAppConfig struct {
@@ -42,6 +47,9 @@ type appConfig struct {
 
 	// Top-level domain for the cookies
 	Domain string `json:"domain" yaml:"domain"`
+
+	// ExternalArg is an example of custom type handling.
+	ExternalArg exampletype.KeyVal `env:"EXT_ARGS" json:"ext_arg" yaml:"ext_arg"`
 }
 
 type loggerConfig struct {
