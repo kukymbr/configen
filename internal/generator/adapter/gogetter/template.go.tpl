@@ -42,7 +42,7 @@ type {{ $st.Name }} struct {
 {{ end }}
 
 {{ if not $st.IsAnonymous }}
-// Constructor for {{ $st.Name }}.
+// New{{ $st.Name }} is a constructor converting {{ $st.SourceStructName }} into the {{ $st.Name }}.
 func New{{ $st.Name }}(dto {{ $st.SourceStructName }}) {{ $st.Name }} {
 	return {{ $st.Name }}{
 		{{- range $fieldIndex, $field := $st.Fields }}

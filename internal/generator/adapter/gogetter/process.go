@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"go/types"
 	"slices"
+	"strings"
 
 	"github.com/kukymbr/configen/internal/generator/gentype"
 )
@@ -114,7 +115,7 @@ func (g *GoGetter) processField(
 		Name:       gentype.ToPrivateName(field.Name()),
 		ExportName: field.Name(),
 		TypeName:   typeName,
-		Comment:    g.Source.GetStructFieldComment(sourceStructName, fieldIndex),
+		Comment:    g.getFieldComment(sourceStructName, field.Name(), fieldIndex),
 		IsStruct:   structInfo != nil,
 		StructInfo: structInfo,
 	}}
@@ -221,4 +222,14 @@ func (g *GoGetter) isTargetPackage(pkg any) bool {
 	pkgName := gentype.ParsePackageName(pkg)
 
 	return pkgName == g.OutputOptions.TargetPackageName
+}
+
+func (g *GoGetter) getFieldComment(sourceStructName string, exportName string, fieldIndex int) string {
+	comment := g.Source.GetStructFieldComment(sourceStructName, fieldIndex)
+
+	if comment != "" && !strings.HasPrefix(comment, exportName) {
+		comment = exportName + " " + comment
+	}
+
+	return comment
 }

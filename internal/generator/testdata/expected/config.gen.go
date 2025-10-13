@@ -44,7 +44,7 @@ func (c APIConfig) DefaultReq() *http.Request {
 	return c.defaultReq
 }
 
-// Constructor for APIConfig.
+// NewAPIConfig is a constructor converting apiConfig into the APIConfig.
 func NewAPIConfig(dto apiConfig) APIConfig {
 	return APIConfig{
 		host:       dto.Host,
@@ -76,22 +76,22 @@ func (c AppConfig) BaseTraceID() int {
 	return c.baseTraceID
 }
 
-// Application environment mode: development|production
+// Env Application environment mode: development|production
 func (c AppConfig) Env() string {
 	return c.env
 }
 
-// Environment namespace (e.g. "dev1")
+// Namespace Environment namespace (e.g. "dev1")
 func (c AppConfig) Namespace() string {
 	return c.namespace
 }
 
-// Top-level domain for the cookies
+// Domain Top-level domain for the cookies
 func (c AppConfig) Domain() string {
 	return c.domain
 }
 
-// Constructor for AppConfig.
+// NewAppConfig is a constructor converting appConfig into the AppConfig.
 func NewAppConfig(dto appConfig) AppConfig {
 	return AppConfig{
 		instanceID:  dto.InstanceID,
@@ -127,7 +127,7 @@ func (c Config) API() APIConfig {
 	return c.api
 }
 
-// Constructor for Config.
+// NewConfig is a constructor converting config into the Config.
 func NewConfig(dto config) Config {
 	return Config{
 		app:    NewAppConfig(dto.App),
@@ -174,7 +174,7 @@ func (c LoggerConfig) DefaultFields() struct {
 	return c.defaultFields
 }
 
-// Constructor for LoggerConfig.
+// NewLoggerConfig is a constructor converting loggerConfig into the LoggerConfig.
 func NewLoggerConfig(dto loggerConfig) LoggerConfig {
 	return LoggerConfig{
 		level: dto.Level,
