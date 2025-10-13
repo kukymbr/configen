@@ -5,14 +5,8 @@ import (
 	"os"
 )
 
-var silentMode bool
-
-func SetSilentMode(silent bool) {
-	silentMode = silent
-}
-
 func Hellof(format string, args ...any) {
-	if silentMode {
+	if opt.Silent {
 		return
 	}
 
@@ -20,7 +14,11 @@ func Hellof(format string, args ...any) {
 }
 
 func Debugf(format string, args ...any) {
-	if silentMode {
+	if opt.Silent {
+		return
+	}
+
+	if !opt.Debug {
 		return
 	}
 
@@ -28,7 +26,7 @@ func Debugf(format string, args ...any) {
 }
 
 func Warningf(format string, args ...any) {
-	if silentMode {
+	if opt.Silent {
 		return
 	}
 
@@ -48,7 +46,7 @@ func Errorf(format string, args ...any) {
 }
 
 func Successf(format string, args ...any) {
-	if silentMode {
+	if opt.Silent {
 		return
 	}
 

@@ -24,6 +24,10 @@ func New(sourceStruct gentype.Source, outputOptions gentype.OutputOptions) *Env 
 	}
 }
 
+func (g *Env) Name() string {
+	return "EnvGenerator"
+}
+
 func (g *Env) Generate(ctx context.Context) (gentype.OutputFiles, error) {
 	g.collectEnvVars(ctx, g.Source.Struct, "")
 

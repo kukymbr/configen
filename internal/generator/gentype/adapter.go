@@ -6,6 +6,7 @@ import (
 )
 
 type Adapter interface {
+	Name() string
 	Generate(ctx context.Context) (OutputFiles, error)
 }
 
@@ -14,6 +15,10 @@ type GenericAdapter struct {
 	OutputOptions OutputOptions
 }
 
-func (g *GenericAdapter) Generate(_ context.Context) error {
-	return errors.New("not implemented")
+func (g *GenericAdapter) Name() string {
+	return "GenericAdapter"
+}
+
+func (g *GenericAdapter) Generate(_ context.Context) (OutputFiles, error) {
+	return nil, errors.New("not implemented")
 }

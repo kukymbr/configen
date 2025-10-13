@@ -16,29 +16,37 @@ type options struct {
 	// StructName is a struct name to generate config from.
 	StructName string
 
+	// SourceDir is a directory of the source go files.
+	// Default is the current directory (most applicable for go:generate).
+	SourceDir string
+
 	// YAMLPath is a path to a target YAML config file.
 	// Define to enable YAML generator.
 	// Set "true" for enable the generator with a default file path.
 	YAMLPath string
+
+	// YAMLTag is a tag name for a YAML field names, `yaml` by default.
+	YAMLTag string
 
 	// EnvPath is a path to a target .env config file.
 	// Define to enable Env generator.
 	// Set "true" for enable the generator with a default file path.
 	EnvPath string
 
-	GoPath string
-
-	// YAMLTag is a tag name for a YAML field names, `yaml` by default.
-	YAMLTag string
-
 	// EnvTag is a tag name for a dotenv field names, `env` by default.
 	EnvTag string
 
-	// SourceDir is a directory of the source go files.
-	// Default is the current directory (most applicable for go:generate).
-	SourceDir string
+	// GoPath is a path to a target .go config file.
+	// Define to enable go getter generator.
+	// Set "true" for enable the generator with a default file path.
+	GoPath string
 
-	GoTargetStructName  string
+	// GoTargetStructName is a target struct name
+	// (default is exported variant of incoming struct name).
+	GoTargetStructName string
+
+	// GoTargetPackageName is a target package name
+	// (default is equal to source package).
 	GoTargetPackageName string
 }
 

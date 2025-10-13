@@ -5,6 +5,7 @@
 package example
 
 import (
+	"github.com/kukymbr/configen/example/exampletype"
 	"net/http"
 	"time"
 )
@@ -64,6 +65,7 @@ type AppConfig struct {
 	env         string
 	namespace   string
 	domain      string
+	externalArg exampletype.KeyVal
 
 	origin any
 }
@@ -91,6 +93,11 @@ func (c AppConfig) Domain() string {
 	return c.domain
 }
 
+// ExternalArg is an example of custom type handling.
+func (c AppConfig) ExternalArg() exampletype.KeyVal {
+	return c.externalArg
+}
+
 // NewAppConfig is a constructor converting appConfig into the AppConfig.
 func NewAppConfig(dto appConfig) AppConfig {
 	return AppConfig{
@@ -99,15 +106,17 @@ func NewAppConfig(dto appConfig) AppConfig {
 		env:         dto.Env,
 		namespace:   dto.Namespace,
 		domain:      dto.Domain,
+		externalArg: dto.ExternalArg,
 
 		origin: dto,
 	}
 }
 
 type Config struct {
-	app    AppConfig
-	logger LoggerConfig
-	api    APIConfig
+	app         AppConfig
+	logger      LoggerConfig
+	api         APIConfig
+	externalArg exampletype.KeyVal
 
 	origin any
 }
@@ -127,12 +136,18 @@ func (c Config) API() APIConfig {
 	return c.api
 }
 
+// ExternalArg is an example of custom type handling.
+func (c Config) ExternalArg() exampletype.KeyVal {
+	return c.externalArg
+}
+
 // NewConfig is a constructor converting config into the Config.
 func NewConfig(dto config) Config {
 	return Config{
-		app:    NewAppConfig(dto.App),
-		logger: NewLoggerConfig(dto.Logger),
-		api:    NewAPIConfig(dto.API),
+		app:         NewAppConfig(dto.App),
+		logger:      NewLoggerConfig(dto.Logger),
+		api:         NewAPIConfig(dto.API),
+		externalArg: dto.ExternalArg,
 
 		origin: dto,
 	}

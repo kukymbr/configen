@@ -29,6 +29,10 @@ func New(sourceStruct gentype.Source, outputOptions gentype.OutputOptions) *GoGe
 	}
 }
 
+func (g *GoGetter) Name() string {
+	return "GoGetterGenerator"
+}
+
 func (g *GoGetter) Generate(ctx context.Context) (gentype.OutputFiles, error) {
 	if g.OutputOptions.TargetPackageName == "" {
 		g.OutputOptions.TargetPackageName = packageNameFromID(g.Source.Package.ID)

@@ -10,6 +10,8 @@ import (
 )
 
 func (g *YAML) structToYAMLNode(ctx context.Context, st *types.Struct) *yaml.Node {
+	g.debugf("converting struct to yaml node")
+
 	ctx = gentype.ContextIncRecursionDepth(ctx)
 	gentype.ContextMustValidateRecursionDepth(ctx, "YAML generator (structToYAMLNode)")
 
@@ -36,8 +38,12 @@ func (g *YAML) processField(
 	field *types.Var,
 	tag string,
 ) []*yaml.Node {
+	g.debugf("processing field %s", field.Name())
+
 	yamlName := gentype.ParseNameTag(tag, g.OutputOptions.Tag, field.Name())
 	if yamlName == "" {
+		g.debugf("skipping field %s", field.Name())
+
 		return nil
 	}
 

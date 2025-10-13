@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/kukymbr/configen/internal/logger"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -50,6 +51,8 @@ func fieldComment(field *ast.Field) string {
 
 func ParseNameTag(tagContent string, tagName string, fallback string) string {
 	if tagContent == "" {
+		logger.Debugf("no tag content for %s", tagName)
+
 		return fallback
 	}
 
@@ -57,15 +60,21 @@ func ParseNameTag(tagContent string, tagName string, fallback string) string {
 
 	nameTag := st.Get(tagName)
 	if nameTag == "" {
+		logger.Debugf("no %s tag found in '%s'", tagName, tagContent)
+
 		return fallback
 	}
 
 	parts := strings.Split(nameTag, ",")
 	if parts[0] == "-" {
+		logger.Debugf("manually skipped '%s'", tagContent)
+
 		return ""
 	}
 
 	if parts[0] == "" {
+		logger.Debugf("no explicit value for %s tag in '%s', falling back to %s", tagName, nameTag, fallback)
+
 		return fallback
 	}
 

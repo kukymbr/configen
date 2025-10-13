@@ -18,7 +18,7 @@ func Run() error {
 	defer cancel()
 
 	opt := options{}
-	silent := false
+	logOpt := logger.Options{}
 
 	var cmd = &cobra.Command{
 		Use:   "configen",
@@ -38,18 +38,19 @@ func Run() error {
 		Version: version.GetVersion(),
 	}
 
-	initFlags(cmd, &opt, &silent)
+	initFlags(cmd, &opt, &logOpt)
 
 	cmd.PersistentPreRun = func(_ *cobra.Command, _ []string) {
-		logger.SetSilentMode(silent)
+		logger.SetOptions(logOpt)
 	}
 
 	return cmd.ExecuteContext(ctx)
 }
 
 //nolint:funlen
-func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
-	cmd.PersistentFlags().BoolVarP(silent, "silent", "s", false, "Silent mode")
+func initFlags(cmd *cobra.Command, opt *options, logOpt *logger.Options) {
+	cmd.PersistentFlags().BoolVarP(&logOpt.Silent, "silent", "s", false, "Silent mode")
+	cmd.PersistentFlags().BoolVarP(&logOpt.Debug, "debug", "d", false, "Debug mode")
 
 	cmd.Flags().StringVar(
 		&opt.StructName,

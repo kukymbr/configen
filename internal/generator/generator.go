@@ -34,7 +34,7 @@ type Generator struct {
 
 //nolint:funlen
 func (g *Generator) Generate(ctx context.Context) error {
-	logger.Debugf("Doing some magic...")
+	logger.Debugf("Doing some magic")
 
 	src, err := g.loadStruct()
 	if err != nil {
@@ -68,23 +68,31 @@ func (g *Generator) Generate(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, gen := range generators {
-		if !gen.out.Enable {
-			continue
-		}
-
 		if err := ctx.Err(); err != nil {
 			return err
 		}
 
 		adapter := gen.adapter(gen.out)
 
+		if !gen.out.Enable {
+			logger.Debugf("%s: is disabled, skipping", adapter.Name())
+
+			continue
+		}
+
 		errGroup.Go(func() error {
+			logger.Debugf("%s: starting the generator", adapter.Name())
+
 			files, err := adapter.Generate(ctx)
 			if err != nil {
 				return err
 			}
 
+			logger.Debugf("%s: done, got %d files to write", adapter.Name(), len(files))
+
 			for _, content := range files {
+				logger.Debugf("%s: writing file %s", adapter.Name(), gen.out.Path)
+
 				if err := writeFile(content, gen.out.Path); err != nil {
 					return err
 				}
@@ -104,6 +112,8 @@ func (g *Generator) Generate(ctx context.Context) error {
 }
 
 func (g *Generator) loadStruct() (gentype.Source, error) {
+	logger.Debugf("Looking for struct %s in %s", g.opt.StructName, g.opt.SourceDir)
+
 	conf := &packages.Config{
 		Mode: packages.NeedTypes | packages.NeedTypesInfo | packages.NeedSyntax | packages.NeedFiles,
 		Dir:  g.opt.SourceDir,
