@@ -60,7 +60,7 @@ func prepareOptions(opt *Options) error {
 	}
 
 	if opt.GoGetter.Path == "" {
-		opt.GoGetter.Path = structSlug + ".go"
+		opt.GoGetter.Path = structSlug + ".gen.go"
 	}
 
 	if opt.YAML.Tag == "" {
