@@ -41,7 +41,7 @@ func (g *YAML) processField(
 		return nil
 	}
 
-	value := gentype.ParseDefaultValue(tag, gentype.ValueTagsYAML()...)
+	value := gentype.ParseDefaultValue(tag, gentype.ValueTagsYAML(g.OutputOptions.DefaultValueTag)...)
 	comment := g.Source.CommentsMap[field.Pos()]
 	ft := field.Type()
 

@@ -29,7 +29,7 @@ func (g *Env) collectEnvVars(ctx context.Context, st *types.Struct, prefix strin
 func (g *Env) processField(ctx context.Context, field *types.Var, tag string, prefix string) {
 	envName := gentype.ParseNameTag(tag, g.OutputOptions.Tag, "")
 	envPrefix := reflect.StructTag(tag).Get(gentype.TagEnvPrefix)
-	example := gentype.ParseDefaultValue(tag, gentype.ValueTagsEnv()...)
+	example := gentype.ParseDefaultValue(tag, gentype.ValueTagsEnv(g.OutputOptions.DefaultValueTag)...)
 	value := gentype.NewNullable[string]()
 
 	comment := g.Source.CommentsMap[field.Pos()]

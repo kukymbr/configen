@@ -186,3 +186,22 @@ func packageNameFromType(t string) string {
 
 	return parts[0]
 }
+
+func appendSlicesFiltered[T comparable](lists ...[]T) []T {
+	var (
+		res   = make([]T, 0)
+		empty T
+	)
+
+	for _, list := range lists {
+		for _, v := range list {
+			if v == empty {
+				continue
+			}
+
+			res = append(res, v)
+		}
+	}
+
+	return res
+}

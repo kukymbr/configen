@@ -58,3 +58,4 @@ clean:
 
 generate_example:
 	go run cmd/configen/main.go --source=example --struct=config --yaml=example/config.yaml --env=example/config.env --go=example/config.gen.go
+	go run cmd/configen/main.go --source=example --struct=config --yaml=example/config.yaml --env=example/config.env --go=example/config.gen.go

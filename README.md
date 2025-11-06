@@ -261,6 +261,7 @@ See the [example](example) directory for usage and generated code example.
 | `--go=<filepath/true>`     |          | Path to Golang config getter file, set 'true' to enable with default path |
 | `--go-pkg=<package>`       |          | Target package name (default is equal to source package)                  |
 | `--go-struct=<StructName>` |          | Target struct name (default is exported variant of incoming struct name)  |
+| `--value-tag=<tag>`        |          | Custom tag name for default values                                        |
 
 The `configen --help` output:
 
@@ -278,18 +279,53 @@ Flags:
   -s, --silent             Silent mode
       --source string      Directory of the source go files (default ".")
       --struct string      Name of the struct to generate config from
+      --value-tag string   Tag name for a default value, prepends the default lookup if given
   -v, --version            version for configen
       --yaml string        Path to YAML config file, set 'true' to enable with default path
       --yaml-tag string    Tag name for a YAML field names (default "yaml")
 ```
 
+### Generating multiple versions from one struct
+
+Sometimes you need to generate multiple versions of the config file, for example, for different environments.
+To do this, you can use the `--value-tag` flag to specify a custom tag name for default values.
+
+For example, to generate two YAMLs for production and local environments:
+
+```go
+package config
+
+//go:generate go run ../../cmd/configen/main.go --source=. --struct=MultiConfig --yaml=production.yaml
+//go:generate go run ../../cmd/configen/main.go --source=. --struct=MultiConfig --yaml=local.yaml --yaml-tag=local --value-tag=localDefault
+
+type MultiConfig struct {
+	Env                 string `yaml:"env" default:"production" local:"env" localDefault:"development"`
+	ProductionOnlyValue string `yaml:"production_only_value" local:"-" default:"very productional value"`
+}
+```
+
+This will give you two YAML files with different keys presence and values:
+
+```yaml
+# production.yaml
+
+env: production
+production_only_value: very productional value
+```
+
+```yaml
+# local.yaml
+
+env: development
+```
+
 ## Contributing
 
-Please refer the [CONTRIBUTING.md](CONTRIBUTING.md) doc.
+Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) doc.
 
 ## TODO
 
-- Add empty value check in go generator (for basic types), for example:
+- Add an empty value check in go generator (for basic types), for example:
   ```golang
   func NewAppConfig(dto appConfig) AppConfig {
     if dto.env == "" {
@@ -301,7 +337,7 @@ Please refer the [CONTRIBUTING.md](CONTRIBUTING.md) doc.
     }
   }
   ```
-- Make option to include/exclude origin in generated structs.
+- Make an option to include/exclude origin in generated structs.
 
 ## License
 

@@ -8,7 +8,8 @@ import (
 
 // Added as an example usage.
 // To regenerate example files in the configen repository, use `make generate_example`.
-//go:generate go tool configen --struct=config --yaml=true --env=example.env --go=config.gen.go
+//go:generate go tool configen --struct=config --yaml=true --env=config.env --go=config.gen.go
+//go:generate go tool configen --struct=config --yaml=local.yaml --env=local.env --yaml-tag=local --value-tag=localDefault
 
 // Config godoc
 //
@@ -17,31 +18,31 @@ import (
 //nolint:unused,nolintlint
 type config struct {
 	// App is an application common settings.
-	App appConfig `envPrefix:"APP_" json:"app" yaml:"app"`
+	App appConfig `envPrefix:"APP_" json:"app" yaml:"app" local:"app"`
 
 	// Logger is a logging setup values.
-	Logger loggerConfig `envPrefix:"LOG_" json:"log" yaml:"logger"`
+	Logger loggerConfig `envPrefix:"LOG_" json:"log" yaml:"logger" local:"logger"`
 
 	// API is an API server configuration.
-	API apiConfig `envPrefix:"API_" json:"api" yaml:"api"`
+	API apiConfig `envPrefix:"API_" json:"api" yaml:"api" local:"API"`
 }
 
 type genericAppConfig struct {
-	InstanceID  string `json:"instance_id" yaml:"instance_id" env:"INSTANCE_ID" default:"test"`
-	BaseTraceID int    `json:"base_trace_id" yaml:"base_trace_id"`
+	InstanceID  string `json:"instance_id" yaml:"instance_id" env:"INSTANCE_ID" default:"test" local:"-"`
+	BaseTraceID int    `json:"base_trace_id" yaml:"base_trace_id" local:"-"`
 }
 
 type appConfig struct {
 	genericAppConfig
 
 	// Application environment mode: development|production
-	Env string `env:"ENV" envDefault:"development" json:"env" yaml:"env"`
+	Env string `env:"ENV" envDefault:"development" json:"env" yaml:"env" local:"env"`
 
 	// Environment namespace (e.g. "dev1")
-	Namespace string `env:"NAMESPACE" envDefault:"unknown" json:"namespace" yaml:"namespace"`
+	Namespace string `env:"NAMESPACE" envDefault:"unknown" json:"namespace" yaml:"namespace" local:"namespace" localDefault:"local"`
 
 	// Top-level domain for the cookies
-	Domain string `json:"domain" yaml:"domain"`
+	Domain string `json:"domain" yaml:"domain" local:"domain" localDefault:"localhost"`
 }
 
 type loggerConfig struct {
@@ -59,7 +60,7 @@ type apiConfig struct {
 	Secret     string        `env:"SECRET,unset" envDefault:"secret" json:"secret" yaml:"secret"`
 	ReqTTL     time.Duration `env:"REQ_TTL" envDefault:"1h" json:"req_ttl" yaml:"req_ttl"`
 	RespTTL    time.Duration `env:"RESP_TTL" envDefault:"1h" json:"resp_ttl" yaml:"resp_ttl"`
-	DefaultReq *http.Request `yaml:"-"`
+	DefaultReq *http.Request `yaml:"-" local:"-"`
 }
 
 type LogLevel int

@@ -100,6 +100,12 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	)
 
 	cmd.Flags().StringVar(
+		&opt.DefaultValueTag,
+		"value-tag", "",
+		"Tag name for a default value, prepends the default lookup if given",
+	)
+
+	cmd.Flags().StringVar(
 		&opt.SourceDir,
 		"source", generator.DefaultSourceDir,
 		"Directory of the source go files",

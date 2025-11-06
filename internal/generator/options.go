@@ -18,12 +18,13 @@ type Options struct {
 	// StructName is a struct name to generate config from.
 	StructName string
 
-	// YAML target config file options
+	// YAML target YAML file options.
 	YAML gentype.OutputOptions
 
-	// Env target config file options
+	// Env target dotenv file options.
 	Env gentype.OutputOptions
 
+	// GoGetter target golang file options.
 	GoGetter gentype.OutputOptions
 
 	// SourceDir is a directory of the SQL files.

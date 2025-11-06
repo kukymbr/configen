@@ -50,6 +50,10 @@ type OutputOptions struct {
 	// Tag is a field names tag.
 	Tag string
 
+	// DefaultValueTag is an explicit tag name for a default value.
+	// Prepends the default lookup if given.
+	DefaultValueTag string
+
 	TargetStructName string
 
 	TargetPackageName string

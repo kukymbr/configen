@@ -13,10 +13,10 @@ var (
 	valueTagsEnv  = []string{TagEnvDefault, TagDefault, TagExample}
 )
 
-func ValueTagsYAML() []string {
-	return valueTagsYAML
+func ValueTagsYAML(override ...string) []string {
+	return appendSlicesFiltered(override, valueTagsYAML)
 }
 
-func ValueTagsEnv() []string {
-	return valueTagsEnv
+func ValueTagsEnv(override ...string) []string {
+	return appendSlicesFiltered(override, valueTagsEnv)
 }

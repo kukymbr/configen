@@ -75,6 +75,34 @@ func (s *GeneratorSuite) TestGenerator_PositiveCases() {
 			},
 		},
 		{
+			Name: "generate local",
+			GetOptFunc: func() generator.Options {
+				return generator.Options{
+					StructName: givenStructName,
+					YAML: gentype.OutputOptions{
+						Enable:          true,
+						Path:            s.getTargetPath(),
+						Tag:             "local",
+						DefaultValueTag: "localDefault",
+					},
+					Env: gentype.OutputOptions{
+						Enable:          true,
+						Path:            s.getTargetPath(),
+						DefaultValueTag: "localDefault",
+					},
+				}
+			},
+			AssertConstructorFunc: func(err error) {
+				s.Require().NoError(err)
+			},
+			AssertFunc: func(opt generator.Options, err error) {
+				s.Require().NoError(err)
+
+				s.assertContent(opt.YAML.Path, "local.yaml")
+				s.assertContent(opt.Env.Path, "local.env")
+			},
+		},
+		{
 			Name: "no generator enabled",
 			GetOptFunc: func() generator.Options {
 				return generator.Options{
