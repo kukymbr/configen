@@ -263,7 +263,10 @@ See the [example](example) directory for usage and generated code example.
 | `--go-struct=<StructName>` |          | Target struct name (default is exported variant of incoming struct name)  |
 | `--value-tag=<tag>`        |          | Custom tag name for default values                                        |
 
-The `configen --help` output:
+<details>
+<summary>
+    The <code>configen --help</code> output
+</summary>
 
 ```text
 Usage:
@@ -284,6 +287,7 @@ Flags:
       --yaml string        Path to YAML config file, set 'true' to enable with default path
       --yaml-tag string    Tag name for a YAML field names (default "yaml")
 ```
+</details>
 
 ### Generating multiple versions from one struct
 
