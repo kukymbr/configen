@@ -207,7 +207,7 @@ func NewLoggerConfig(dto loggerConfig) LoggerConfig {
 ## Why?
 
 1. To simplify the creation of config files, obviously;
-2. and to easily keep up-to-date an example config files when config structure has changed;
+2. and to easily keep up to date an example config files when the config structure has changed;
 3. to hide config values behind the read-only struct.
 
 ## Installation
@@ -238,30 +238,32 @@ go get -tool github.com/kukymbr/configen/cmd/configen
 
 ### Available struct tags
 
-| Tag          | Value                                                                               |
-|--------------|-------------------------------------------------------------------------------------|
-| `yaml`       | key for the value in YAML file, or `-` to skip                                      |
-| `env`        | key for the value in dotenv file, fields without this tag are not added to env file |
-| `default`    | default value to write to config files, prioritized for YAML                        |
-| `envDefault` | default value to write to config files, prioritized for env                         |
-| `example`    | default value to write to config files, to use with swaggo for example              |
+| Tag          | Value                                                                                |
+|--------------|--------------------------------------------------------------------------------------|
+| `yaml`       | key for the value in YAML file, or `-` to skip                                       |
+| `env`        | key for the value in dotenv file, fields without this tag are not added to env file  |
+| `envPrefix`  | prefix for sub-structs in dotenv file                                                |
+| `default`    | default value to write to config files, prioritized for YAML                         |
+| `envDefault` | default value to write to config files, prioritized for env                          |
+| `example`    | default value to write to config files, general use (to use with swaggo for example) |
 
 See the [example](example) directory for usage and generated code example.
 
 ### Command arguments to generate things
 
-| Argument                   | Required | Value                                                                     |
-|----------------------------|----------|---------------------------------------------------------------------------|
-| `--struct=<StrcutName>`    | ✅        | Name of the struct to generate config from                                |
-| `--source=<dir>`           |          | Directory of the source go files (default ".")                            |
-| `--yaml=<filepath/true>`   |          | Path to YAML config file, set 'true' to enable with default path          |
-| `--yaml-tag=<tag>`         |          | Tag name for a YAML field names (default "yaml")                          |
-| `--env=<filepath/true>`    |          | Path to dotenv config file, set 'true' to enable with default path        |
-| `--env-tag=<tag>`          |          | Tag name for a dotenv field names (default "env")                         |
-| `--go=<filepath/true>`     |          | Path to Golang config getter file, set 'true' to enable with default path |
-| `--go-pkg=<package>`       |          | Target package name (default is equal to source package)                  |
-| `--go-struct=<StructName>` |          | Target struct name (default is exported variant of incoming struct name)  |
-| `--value-tag=<tag>`        |          | Custom tag name for default values                                        |
+| Argument                   | Required | Value                                                                      |
+|----------------------------|----------|----------------------------------------------------------------------------|
+| `--struct=<StrcutName>`    | ✅        | Name of the struct to generate config from                                 |
+| `--source=<dir>`           |          | Directory of the source go files (default `.`)                             |
+| `--yaml=<filepath/true>`   |          | Path to YAML config file, set `true` to enable with default path           |
+| `--yaml-tag=<tag>`         |          | Tag name for a YAML field names (default `yaml`)                           |
+| `--env=<filepath/true>`    |          | Path to dotenv config file, set `true` to enable with default path         |
+| `--env-tag=<tag>`          |          | Tag name for a dotenv variables names (default `env`)                      |
+| `--env-prefix-tag=<tag>`   |          | Tag name for a dotenv subs-struct variables prefixes (default `envPrefix`) |
+| `--go=<filepath/true>`     |          | Path to Golang config getter file, set `true` to enable with default path  |
+| `--go-pkg=<package>`       |          | Target package name (default is equal to source package)                   |
+| `--go-struct=<StructName>` |          | Target struct name (default is exported variant of incoming struct name)   |
+| `--value-tag=<tag>`        |          | Custom tag name for default values                                         |
 
 <details>
 <summary>
@@ -273,20 +275,22 @@ Usage:
   configen [flags]
 
 Flags:
-      --env string         Path to dotenv config file, set 'true' to enable with default path
-      --env-tag string     Tag name for a dotenv field names (default "env")
-      --go string          Path to Golang config getter file, set 'true' to enable with default path
-      --go-pkg string      Target package name
-      --go-struct string   Target struct name (default is exported variant of incoming struct name)
-  -h, --help               help for configen
-  -s, --silent             Silent mode
-      --source string      Directory of the source go files (default ".")
-      --struct string      Name of the struct to generate config from
-      --value-tag string   Tag name for a default value, prepends the default lookup if given
-  -v, --version            version for configen
-      --yaml string        Path to YAML config file, set 'true' to enable with default path
-      --yaml-tag string    Tag name for a YAML field names (default "yaml")
+      --env string              Path to dotenv config file, set 'true' to enable with default path
+      --env-prefix-tag string   Tag name for a dotenv variable prefixes (default "envPrefix")
+      --env-tag string          Tag name for a dotenv variables names (default "env")
+      --go string               Path to Golang config getter file, set 'true' to enable with default path
+      --go-pkg string           Target package name
+      --go-struct string        Target struct name (default is exported variant of incoming struct name)
+  -h, --help                    help for configen
+  -s, --silent                  Silent mode
+      --source string           Directory of the source go files (default ".")
+      --struct string           Name of the struct to generate config from
+      --value-tag string        Tag name for a default value, prepends the default lookup if given
+  -v, --version                 version for configen
+      --yaml string             Path to YAML config file, set 'true' to enable with default path
+      --yaml-tag string         Tag name for a YAML field names (default "yaml")
 ```
+
 </details>
 
 ### Generating multiple versions from one struct

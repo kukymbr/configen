@@ -84,7 +84,13 @@ func initFlags(cmd *cobra.Command, opt *options, silent *bool) {
 	cmd.Flags().StringVar(
 		&opt.EnvTag,
 		"env-tag", generator.DefaultEnvTag,
-		"Tag name for a dotenv field names",
+		"Tag name for a dotenv variables names",
+	)
+
+	cmd.Flags().StringVar(
+		&opt.EnvPrefixTag,
+		"env-prefix-tag", generator.DefaultEnvPrefixTag,
+		"Tag name for a dotenv variable prefixes",
 	)
 
 	cmd.Flags().StringVar(

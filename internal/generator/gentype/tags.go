@@ -1,6 +1,9 @@
 package gentype
 
 const (
+	TagYAML = "yaml"
+
+	TagEnv        = "env"
 	TagEnvPrefix  = "envPrefix"
 	TagEnvDefault = "envDefault"
 

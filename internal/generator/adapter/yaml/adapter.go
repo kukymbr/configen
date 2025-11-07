@@ -3,7 +3,6 @@ package yaml
 import (
 	"context"
 	"fmt"
-
 	"github.com/kukymbr/configen/internal/generator/gentype"
 	"gopkg.in/yaml.v3"
 )

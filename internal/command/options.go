@@ -18,7 +18,7 @@ type options struct {
 
 	// YAMLPath is a path to a target YAML config file.
 	// Define to enable YAML generator.
-	// Set "true" for enable the generator with a default file path.
+	// Set "true" to enable the generator with a default file path.
 	YAMLPath string
 
 	// EnvPath is a path to a target .env config file.
@@ -34,6 +34,9 @@ type options struct {
 
 	// EnvTag is a tag name for a dotenv field name, `env` by default.
 	EnvTag string
+
+	// EnvPrefixTag is a tag name for a dotenv field name prefix.
+	EnvPrefixTag string
 
 	// DefaultValueTag is an explicit tag name for a default value.
 	// Overrides the default lookup if given.
@@ -57,17 +60,19 @@ func (opt options) ToGeneratorOptions() generator.Options {
 	}
 
 	outOpts := []struct {
-		Input  string
-		Tag    string
-		Target *gentype.OutputOptions
+		Input     string
+		Tag       string
+		PrefixTag string
+		Target    *gentype.OutputOptions
 	}{
 		{Input: opt.YAMLPath, Tag: opt.YAMLTag, Target: &gen.YAML},
-		{Input: opt.EnvPath, Tag: opt.EnvTag, Target: &gen.Env},
+		{Input: opt.EnvPath, Tag: opt.EnvTag, PrefixTag: opt.EnvPrefixTag, Target: &gen.Env},
 		{Input: opt.GoPath, Target: &gen.GoGetter},
 	}
 
 	for _, out := range outOpts {
 		out.Target.Tag = out.Tag
+		out.Target.PrefixTag = out.PrefixTag
 
 		keyword := strings.ToLower(out.Input)
 		switch keyword {

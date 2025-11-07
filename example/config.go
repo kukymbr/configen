@@ -9,7 +9,7 @@ import (
 // Added as an example usage.
 // To regenerate example files in the configen repository, use `make generate_example`.
 //go:generate go tool configen --struct=config --yaml=true --env=config.env --go=config.gen.go
-//go:generate go tool configen --struct=config --yaml=local.yaml --env=local.env --yaml-tag=local --value-tag=localDefault
+//go:generate go tool configen --struct=config --yaml=local.yaml --env=local.env --yaml-tag=local --value-tag=localDefault --env-prefix-tag=envPrefix
 
 // Config godoc
 //

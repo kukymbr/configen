@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	DefaultSourceDir = "."
-	DefaultEnvTag    = "env"
-	DefaultYAMLTag   = "yaml"
+	DefaultSourceDir    = "."
+	DefaultEnvTag       = gentype.TagEnv
+	DefaultEnvPrefixTag = gentype.TagEnvPrefix
+	DefaultYAMLTag      = gentype.TagYAML
 )
 
 type Options struct {
@@ -70,6 +71,10 @@ func prepareOptions(opt *Options) error {
 
 	if opt.Env.Tag == "" {
 		opt.Env.Tag = DefaultEnvTag
+	}
+
+	if opt.Env.PrefixTag == "" {
+		opt.Env.PrefixTag = DefaultEnvPrefixTag
 	}
 
 	if opt.GoGetter.TargetStructName == "" {
