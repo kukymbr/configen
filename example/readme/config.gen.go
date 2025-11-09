@@ -4,34 +4,64 @@
 // Generator version: unknown (revision unknown, built at 2025-10-04 00:00:00)
 package readme
 
-import ()
-
-type APIConfig struct {
-	host string
-	port int
+type Config struct {
+	instanceID int
+	app        struct {
+		env       string
+		namespace string
+		domain    string
+	}
+	logger struct {
+		level string
+	}
 
 	origin any
 }
 
-func (c APIConfig) Host() string {
-	return c.host
+func (c Config) InstanceID() int {
+	return c.instanceID
 }
 
-func (c APIConfig) Port() int {
-	return c.port
+// App is an application common settings.
+func (c Config) App() struct {
+	env       string
+	namespace string
+	domain    string
+} {
+	return c.app
 }
 
-// NewAPIConfig is a constructor converting apiConfig into the APIConfig.
-func NewAPIConfig(dto apiConfig) APIConfig {
-	return APIConfig{
-		host: dto.Host,
-		port: dto.Port,
+// Logger is a logging setup values.
+func (c Config) Logger() struct {
+	level string
+} {
+	return c.logger
+}
+
+// NewConfig is a constructor converting config into the Config.
+func NewConfig(dto config) Config {
+	return Config{
+		instanceID: dto.InstanceID,
+		app: struct {
+			env       string
+			namespace string
+			domain    string
+		}{
+			env:       dto.App.Env,
+			namespace: dto.App.Namespace,
+			domain:    dto.App.Domain,
+		},
+		logger: struct {
+			level string
+		}{
+			level: dto.Logger.Level,
+		},
 
 		origin: dto,
 	}
 }
 
-type AppConfig struct {
+type ConfigAppProvider struct {
 	env       string
 	namespace string
 	domain    string
@@ -39,78 +69,24 @@ type AppConfig struct {
 	origin any
 }
 
-func (c AppConfig) Env() string {
+func (c ConfigAppProvider) Env() string {
 	return c.env
 }
 
-func (c AppConfig) Namespace() string {
+func (c ConfigAppProvider) Namespace() string {
 	return c.namespace
 }
 
-func (c AppConfig) Domain() string {
+func (c ConfigAppProvider) Domain() string {
 	return c.domain
 }
 
-// NewAppConfig is a constructor converting appConfig into the AppConfig.
-func NewAppConfig(dto appConfig) AppConfig {
-	return AppConfig{
-		env:       dto.Env,
-		namespace: dto.Namespace,
-		domain:    dto.Domain,
-
-		origin: dto,
-	}
-}
-
-type Config struct {
-	app    AppConfig
-	logger LoggerConfig
-	api    APIConfig
-
-	origin any
-}
-
-// App is an application common settings.
-func (c Config) App() AppConfig {
-	return c.app
-}
-
-// Logger is a logging setup values.
-func (c Config) Logger() LoggerConfig {
-	return c.logger
-}
-
-// API is an API server configuration.
-func (c Config) API() APIConfig {
-	return c.api
-}
-
-// NewConfig is a constructor converting config into the Config.
-func NewConfig(dto config) Config {
-	return Config{
-		app:    NewAppConfig(dto.App),
-		logger: NewLoggerConfig(dto.Logger),
-		api:    NewAPIConfig(dto.API),
-
-		origin: dto,
-	}
-}
-
-type LoggerConfig struct {
+type ConfigLoggerProvider struct {
 	level string
 
 	origin any
 }
 
-func (c LoggerConfig) Level() string {
+func (c ConfigLoggerProvider) Level() string {
 	return c.level
-}
-
-// NewLoggerConfig is a constructor converting loggerConfig into the LoggerConfig.
-func NewLoggerConfig(dto loggerConfig) LoggerConfig {
-	return LoggerConfig{
-		level: dto.Level,
-
-		origin: dto,
-	}
 }

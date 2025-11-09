@@ -4,11 +4,13 @@
 // Generator version: {{ .Version }}
 package {{ .PackageName }}
 
+{{ if len .Imports }}
 import(
 {{- range .Imports }}
     "{{ . }}"
 {{- end }}
 )
+{{ end }}
 
 {{ range $name, $st := .Structs }}
 type {{ $st.Name }} struct {
@@ -30,7 +32,7 @@ type {{ $st.Name }} struct {
 {{ range $fieldIndex, $field := $st.Fields }}
 {{ if $field.Comment -}}// {{- $field.Comment -}}{{- end -}}{{- if not (and $field.IsStruct $field.StructInfo.IsAnonymous) -}}
     func (c {{ $st.Name }}) {{ $field.ExportName }}() {{ $field.TypeName }} {
-{{- else }}
+{{- else -}}
     func (c {{ $st.Name }}) {{ $field.ExportName }}() struct {
     {{- range $field.StructInfo.Fields }}
         {{ .Name }} {{ .TypeName }}
