@@ -26,6 +26,7 @@ var (
 		"JSON":  {},
 		"JWT":   {},
 		"LHS":   {},
+		"MIME":  {},
 		"OCR":   {},
 		"QPS":   {},
 		"RAM":   {},
