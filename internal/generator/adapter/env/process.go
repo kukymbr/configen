@@ -57,15 +57,17 @@ func (g *Env) processField(ctx context.Context, field *types.Var, tag string, pr
 			return
 		}
 
+		if gentype.IsTextUnmarshaler(stt) {
+			value.Set(gentype.DefaultValueForType(ft, example))
+
+			return
+		}
+
 		if !g.isTargetPackage(named) {
 			return
 		}
 
-		if gentype.IsTextUnmarshaler(stt) {
-			value.Set(gentype.DefaultValueForType(ft, example))
-		} else {
-			g.collectEnvVars(ctx, stt, prefix+envPrefix)
-		}
+		g.collectEnvVars(ctx, stt, prefix+envPrefix)
 	}
 
 	if envName == "" {
