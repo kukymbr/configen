@@ -5,7 +5,9 @@
 package example
 
 import (
+	"maps"
 	"net/http"
+	"slices"
 	"time"
 )
 
@@ -105,9 +107,11 @@ func NewAppConfig(dto appConfig) AppConfig {
 }
 
 type Config struct {
-	app    AppConfig
-	logger LoggerConfig
-	api    APIConfig
+	app       AppConfig
+	logger    LoggerConfig
+	api       APIConfig
+	databases map[string]string
+	hosts     []string
 
 	origin any
 }
@@ -127,12 +131,25 @@ func (c Config) API() APIConfig {
 	return c.api
 }
 
+// Databases maps a database name to its DSN.
+// A multiline comment: every line goes to the generated files.
+func (c Config) Databases() map[string]string {
+	return maps.Clone(c.databases)
+}
+
+// Hosts is a list of the allowed hosts.
+func (c Config) Hosts() []string {
+	return slices.Clone(c.hosts)
+}
+
 // NewConfig is a constructor converting config into the Config.
 func NewConfig(dto config) Config {
 	return Config{
-		app:    NewAppConfig(dto.App),
-		logger: NewLoggerConfig(dto.Logger),
-		api:    NewAPIConfig(dto.API),
+		app:       NewAppConfig(dto.App),
+		logger:    NewLoggerConfig(dto.Logger),
+		api:       NewAPIConfig(dto.API),
+		databases: dto.Databases,
+		hosts:     dto.Hosts,
 
 		origin: dto,
 	}
@@ -202,5 +219,5 @@ func (c LoggerConfigDefaultFieldsProvider) TraceID() string {
 }
 
 func (c LoggerConfigDefaultFieldsProvider) Values() map[string]any {
-	return c.values
+	return maps.Clone(c.values)
 }
