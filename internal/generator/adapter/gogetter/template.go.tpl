@@ -30,7 +30,8 @@ type {{ $st.Name }} struct {
 }
 
 {{ range $fieldIndex, $field := $st.Fields }}
-{{ if $field.Comment -}}// {{- $field.Comment -}}{{- end -}}{{- if not (and $field.IsStruct $field.StructInfo.IsAnonymous) -}}
+{{ if $field.Comment -}}{{ $field.Comment }}
+{{ end -}}{{- if not (and $field.IsStruct $field.StructInfo.IsAnonymous) -}}
     func (c {{ $st.Name }}) {{ $field.ExportName }}() {{ $field.TypeName }} {
 {{- else -}}
     func (c {{ $st.Name }}) {{ $field.ExportName }}() struct {
@@ -39,7 +40,7 @@ type {{ $st.Name }} struct {
     {{- end }}
     } {
 {{- end }}
-	return c.{{ $field.Name }}
+	return {{ if $field.CloneFunc }}{{ $field.CloneFunc }}(c.{{ $field.Name }}){{ else }}c.{{ $field.Name }}{{ end }}
 }
 {{ end }}
 

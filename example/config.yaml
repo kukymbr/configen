@@ -28,3 +28,12 @@ api:
     secret: secret
     req_ttl: 1h
     resp_ttl: 1h
+# Databases maps a database name to its DSN.
+# A multiline comment: every line goes to the generated files.
+databases:
+    main: postgres://db/main
+    log: postgres://db/log
+# Hosts is a list of the allowed hosts.
+hosts:
+    - localhost
+    - example.com

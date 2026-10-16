@@ -116,6 +116,7 @@ func (g *GoGetter) processField(
 		ExportName: field.Name(),
 		TypeName:   typeName,
 		Comment:    g.getFieldComment(sourceStructName, field.Name(), fieldIndex),
+		CloneFunc:  g.getCloneFunc(ft),
 		IsStruct:   structInfo != nil,
 		StructInfo: structInfo,
 	}}
@@ -224,12 +225,30 @@ func (g *GoGetter) isTargetPackage(pkg any) bool {
 	return pkgName == g.OutputOptions.TargetPackageName
 }
 
+// getFieldComment returns the getter's doc comment, every line prefixed with "// ".
 func (g *GoGetter) getFieldComment(sourceStructName string, exportName string, fieldIndex int) string {
-	comment := g.Source.GetStructFieldComment(sourceStructName, fieldIndex)
+	comment := strings.TrimSpace(g.Source.GetStructFieldComment(sourceStructName, fieldIndex))
 
 	if comment != "" && !strings.HasPrefix(comment, exportName) {
 		comment = exportName + " " + comment
 	}
 
-	return comment
+	return gentype.PrefixCommentLines(comment, "// ")
+}
+
+// getCloneFunc returns a function to copy a map or a slice value in the getter,
+// so the caller can't change the config through the returned value.
+func (g *GoGetter) getCloneFunc(t types.Type) string {
+	switch t.Underlying().(type) {
+	case *types.Map:
+		g.registerImport("maps")
+
+		return "maps.Clone"
+	case *types.Slice:
+		g.registerImport("slices")
+
+		return "slices.Clone"
+	}
+
+	return ""
 }

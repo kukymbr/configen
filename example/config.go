@@ -25,6 +25,13 @@ type config struct {
 
 	// API is an API server configuration.
 	API apiConfig `envPrefix:"API_" json:"api" yaml:"api" local:"API"`
+
+	// Databases maps a database name to its DSN.
+	// A multiline comment: every line goes to the generated files.
+	Databases map[string]string `env:"DATABASES" envDefault:"main:postgres://db/main,log:postgres://db/log" json:"databases" yaml:"databases" local:"-"`
+
+	// Hosts is a list of the allowed hosts.
+	Hosts []string `env:"HOSTS" envSeparator:";" envDefault:"localhost;example.com" json:"hosts" yaml:"hosts" local:"-"`
 }
 
 type genericAppConfig struct {
