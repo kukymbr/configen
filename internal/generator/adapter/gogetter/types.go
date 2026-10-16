@@ -13,6 +13,8 @@ type FieldInfo struct {
 	ExportName string
 	TypeName   string
 	Comment    string
+	// CloneFunc is a function to copy the value in the getter (maps.Clone or slices.Clone), empty if no copy is needed.
+	CloneFunc  string
 	IsStruct   bool
 	StructInfo *StructInfo
 }

@@ -33,6 +33,31 @@ func GetDocComment(symbol string, structName string, doc string) string {
 	return comment.String()
 }
 
+// PrefixCommentLines prefixes every line of the comment with the prefix (e.g. "# " or "// "),
+// empty lines get the prefix without trailing spaces. Returns an empty string for an empty comment.
+func PrefixCommentLines(comment string, prefix string) string {
+	comment = strings.TrimSpace(comment)
+	if comment == "" {
+		return ""
+	}
+
+	lines := strings.Split(comment, "\n")
+
+	for i, line := range lines {
+		line = strings.TrimRight(line, " \t\r")
+
+		if line == "" {
+			lines[i] = strings.TrimRight(prefix, " ")
+
+			continue
+		}
+
+		lines[i] = prefix + line
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 func GetStructDocComment(pkg *packages.Package, structName string) string {
 	for _, f := range pkg.Syntax {
 		for _, decl := range f.Decls {

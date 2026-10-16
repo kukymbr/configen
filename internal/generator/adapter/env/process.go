@@ -79,7 +79,7 @@ func (g *Env) processField(ctx context.Context, field *types.Var, tag string, pr
 	}
 
 	if comment != "" {
-		g.envs = append(g.envs, fmt.Sprintf("# %s", comment))
+		g.envs = append(g.envs, gentype.PrefixCommentLines(comment, "# "))
 	}
 
 	g.envs = append(g.envs, fmt.Sprintf("%s%s=%s", prefix, envName, value.Value()))

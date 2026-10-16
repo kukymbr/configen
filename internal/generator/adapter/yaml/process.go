@@ -61,7 +61,7 @@ func (g *YAML) processField(
 	}
 
 	keyNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: yamlName}
-	valNode := g.typeToYAMLNode(ctx, ft, value)
+	valNode := g.typeToYAMLNode(ctx, ft, value, newValueSeparators(tag))
 
 	if comment != "" {
 		keyNode.HeadComment = comment
@@ -71,7 +71,7 @@ func (g *YAML) processField(
 }
 
 //nolint:cyclop,funlen
-func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string) *yaml.Node {
+func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string, seps valueSeparators) *yaml.Node {
 	if gentype.IsTextUnmarshaler(t) || gentype.IsStringer(t) {
 		return &yaml.Node{
 			Kind:  yaml.ScalarNode,
@@ -84,19 +84,19 @@ func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string) *
 	case *types.Basic:
 		return getYAMLBasicNode(tt, value)
 	case *types.Pointer:
-		return g.typeToYAMLNode(ctx, tt.Elem(), value)
+		return g.typeToYAMLNode(ctx, tt.Elem(), value, seps)
 	case *types.Slice, *types.Array:
 		elemType := tt.(interface{ Elem() types.Type }).Elem()
 
 		seq := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 
 		if value != "" && !isStructLike(elemType) {
-			for _, v := range strings.Split(value, ",") {
-				elemNode := g.typeToYAMLNode(ctx, elemType, v)
+			for _, v := range strings.Split(value, seps.item) {
+				elemNode := g.typeToYAMLNode(ctx, elemType, v, seps)
 				seq.Content = append(seq.Content, elemNode)
 			}
 		} else {
-			seq.Content = append(seq.Content, g.typeToYAMLNode(ctx, elemType, ""))
+			seq.Content = append(seq.Content, g.typeToYAMLNode(ctx, elemType, "", seps))
 		}
 
 		return seq
@@ -104,8 +104,8 @@ func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string) *
 		if value != "" {
 			m := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
-			for _, p := range strings.Split(value, ",") {
-				kv := strings.SplitN(p, "=", 2)
+			for _, p := range strings.Split(value, seps.item) {
+				kv := strings.SplitN(p, seps.keyVal, 2)
 				k := kv[0]
 				v := ""
 
@@ -138,7 +138,7 @@ func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string) *
 			return g.structToYAMLNode(ctx, st)
 		}
 
-		return g.typeToYAMLNode(ctx, tt.Underlying(), value)
+		return g.typeToYAMLNode(ctx, tt.Underlying(), value, seps)
 	case *types.Struct:
 		key := tt.String()
 		if _, ok := g.visited[key]; ok {
@@ -155,4 +155,17 @@ func (g *YAML) typeToYAMLNode(ctx context.Context, t types.Type, value string) *
 	}
 
 	return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: ""}
+}
+
+// valueSeparators are the separators of slice items and map key-value pairs in a default value,
+// the same as the env parsers use, so the YAML example matches what is read in runtime.
+type valueSeparators struct {
+	item   string
+	keyVal string
+}
+
+func newValueSeparators(tag string) valueSeparators {
+	item, keyVal := gentype.ValueSeparators(tag)
+
+	return valueSeparators{item: item, keyVal: keyVal}
 }
